@@ -75,6 +75,10 @@ const mortgageMinCash: SavingsStrategy = {
             purchaseMonth = m
           }
         } else {
+          // Erode existing cash first (month passes)
+          if (!isDeposit && cash > 0) {
+            cash /= (1 + monthlyInflation)
+          }
           const monthlyBudget = savingsPerMonth + rentPerMonth
           if (remainingDebt > 0) {
             const interestThisMonth = remainingDebt * monthlyRate
@@ -100,10 +104,6 @@ const mortgageMinCash: SavingsStrategy = {
           } else {
             // Mortgage paid off — save the entire budget
             cash += monthlyBudget
-          }
-          // Cash erodes by inflation if not deposit
-          if (!isDeposit && cash > 0) {
-            cash /= (1 + monthlyInflation)
           }
         }
       }

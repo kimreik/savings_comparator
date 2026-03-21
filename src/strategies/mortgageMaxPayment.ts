@@ -79,6 +79,11 @@ const mortgageMaxPayment: SavingsStrategy = {
             purchaseMonth = m
           }
         } else if (remainingDebt > 0) {
+          // Erode existing cash first (month passes)
+          if (!isDeposit && cash > 0) {
+            cash /= (1 + monthlyInflation)
+          }
+
           // Phase 2: paying mortgage — throw everything at it
           const monthlyBudget = savingsPerMonth + rentPerMonth
 
@@ -108,11 +113,6 @@ const mortgageMaxPayment: SavingsStrategy = {
             paidOffMonth = m
           } else {
             paymentsRemaining--
-          }
-
-          // After max payment, any leftover cash erodes
-          if (!isDeposit && cash > 0) {
-            cash /= (1 + monthlyInflation)
           }
         } else {
           // Phase 3: mortgage paid off — spend freely (memories), no saving

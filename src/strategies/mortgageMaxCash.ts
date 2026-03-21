@@ -75,6 +75,11 @@ const mortgageMaxCash: SavingsStrategy = {
             purchaseMonth = m
           }
         } else if (remainingDebt > 0) {
+          // Erode existing cash first (month passes)
+          if (!isDeposit && cash > 0) {
+            cash /= (1 + monthlyInflation)
+          }
+
           // Phase 2: throw everything at the mortgage
           const monthlyBudget = savingsPerMonth + rentPerMonth
           const interestThisMonth = remainingDebt * monthlyRate
@@ -108,18 +113,14 @@ const mortgageMaxCash: SavingsStrategy = {
           } else {
             paymentsRemaining--
           }
-
-          // Leftover cash erodes if not deposit
-          if (!isDeposit && cash > 0) {
-            cash /= (1 + monthlyInflation)
-          }
         } else {
           // Phase 3: mortgage paid off — save the entire budget as cash
-          const monthlyBudget = savingsPerMonth + rentPerMonth
-          cash += monthlyBudget
+          // Erode existing cash first (month passes)
           if (!isDeposit && cash > 0) {
             cash /= (1 + monthlyInflation)
           }
+          const monthlyBudget = savingsPerMonth + rentPerMonth
+          cash += monthlyBudget
         }
       }
     }

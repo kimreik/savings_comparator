@@ -92,6 +92,10 @@ const mortgageMinMemories: SavingsStrategy = {
             purchaseMonth = m
           }
         } else {
+          // Erode existing cash first (month passes)
+          if (!isDeposit && cash > 0) {
+            cash /= (1 + monthlyInflation)
+          }
           if (remainingDebt > 0) {
             const interestThisMonth = remainingDebt * monthlyRate
             const monthlyBudget = savingsPerMonth + rentPerMonth
@@ -113,9 +117,6 @@ const mortgageMinMemories: SavingsStrategy = {
             if (remainingDebt <= 0.01) {
               remainingDebt = 0
             }
-          }
-          if (!isDeposit && cash > 0) {
-            cash /= (1 + monthlyInflation)
           }
         }
       }
