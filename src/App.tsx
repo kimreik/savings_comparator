@@ -24,20 +24,55 @@ const DEFAULT_PARAMS: SimulationParams = {
 
 function App() {
   const [params, setParams] = useState<SimulationParams>(DEFAULT_PARAMS)
+  const [mobileTab, setMobileTab] = useState<'chart' | 'settings'>('chart')
   const results = useSimulation(params)
 
   return (
     <div className="h-screen flex flex-col bg-amber-100 overflow-hidden">
-      <main className="max-w-7xl w-full mx-auto px-4 py-4 flex flex-col flex-1 min-h-0">
-        <h1 className="text-3xl font-bold text-gray-800 mb-4 shrink-0">Saving types comparison</h1>
+      {/* ── Mobile tab bar ── */}
+      <div className="lg:hidden flex border-b border-amber-300/40 shrink-0">
+        <button
+          onClick={() => setMobileTab('chart')}
+          className={`flex-1 py-2.5 text-sm font-semibold tracking-wide uppercase transition-colors ${
+            mobileTab === 'chart'
+              ? 'text-amber-800 border-b-2 border-amber-600 bg-white/30'
+              : 'text-gray-500'
+          }`}
+        >
+          📊 Chart
+        </button>
+        <button
+          onClick={() => setMobileTab('settings')}
+          className={`flex-1 py-2.5 text-sm font-semibold tracking-wide uppercase transition-colors ${
+            mobileTab === 'settings'
+              ? 'text-amber-800 border-b-2 border-amber-600 bg-white/30'
+              : 'text-gray-500'
+          }`}
+        >
+          ⚙️ Settings
+        </button>
+      </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-[auto_1fr] gap-6 flex-1 min-h-0">
-          <InputPanel
-            params={params}
-            onParamsChange={setParams}
-          />
+      <main className="max-w-7xl w-full mx-auto px-3 py-3 lg:px-4 lg:py-4 flex flex-col flex-1 min-h-0">
+        <h1 className="hidden lg:block text-3xl font-bold text-gray-800 mb-4 shrink-0">
+          Saving types comparison
+        </h1>
 
+        {/* ── Desktop: side-by-side ── */}
+        <div className="hidden lg:grid lg:grid-cols-[auto_1fr] gap-6 flex-1 min-h-0">
+          <InputPanel params={params} onParamsChange={setParams} />
           <ComparisonChart results={results} />
+        </div>
+
+        {/* ── Mobile: tab content ── */}
+        <div className="lg:hidden flex-1 min-h-0 flex flex-col">
+          {mobileTab === 'chart' ? (
+            <ComparisonChart results={results} />
+          ) : (
+            <div className="flex-1 overflow-y-auto">
+              <InputPanel params={params} onParamsChange={setParams} />
+            </div>
+          )}
         </div>
       </main>
     </div>
@@ -45,6 +80,3 @@ function App() {
 }
 
 export default App
-
-
-

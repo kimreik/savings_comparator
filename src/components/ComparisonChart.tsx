@@ -8,6 +8,7 @@ import {
   Cell,
   LabelList,
 } from 'recharts'
+import { useEffect, useState } from 'react'
 import type { StrategyResult } from '../types'
 
 interface ComparisonChartProps {
@@ -23,22 +24,40 @@ function formatCurrency(value: number) {
   }).format(value)
 }
 
+function formatCurrencyCompact(value: number) {
+  if (value === -1) return '💀'
+  if (Math.abs(value) >= 1_000_000) return `${(value / 1_000_000).toFixed(1)}M`
+  if (Math.abs(value) >= 1_000) return `${(value / 1_000).toFixed(0)}K`
+  return String(value)
+}
+
+function useIsMobile(breakpoint = 768) {
+  const [isMobile, setIsMobile] = useState(
+    typeof window !== 'undefined' ? window.innerWidth < breakpoint : false
+  )
+  useEffect(() => {
+    const onResize = () => setIsMobile(window.innerWidth < breakpoint)
+    window.addEventListener('resize', onResize)
+    return () => window.removeEventListener('resize', onResize)
+  }, [breakpoint])
+  return isMobile
+}
+
 /** Minimum bar width (px) to place the label inside */
-const MIN_WIDTH_FOR_INSIDE = 180
+const MIN_WIDTH_FOR_INSIDE = 140
 
 function CustomBarLabel(props: any) {
-  const { x, y, width, height, value } = props
+  const { x, y, width, height, value, fontSize = 16 } = props
   const isBankrupt = value?.startsWith('💀')
 
   if (isBankrupt) {
-    // Bankrupt: always render label at the left edge
     return (
       <text
         x={(x ?? 0) + 6}
         y={y + height / 2}
         dy={4}
         textAnchor="start"
-        style={{ fontSize: 16, fontWeight: 600, fill: '#991b1b' }}
+        style={{ fontSize, fontWeight: 600, fill: '#991b1b' }}
       >
         {value}
       </text>
@@ -54,7 +73,7 @@ function CustomBarLabel(props: any) {
       dy={4}
       textAnchor="start"
       style={{
-        fontSize: 16,
+        fontSize,
         fontWeight: 600,
         fill: inside ? '#fff' : '#374151',
         textShadow: inside ? '0 1px 2px rgba(0,0,0,0.3)' : 'none',
@@ -69,7 +88,7 @@ function CustomTooltip({ active, payload }: any) {
   if (!active || !payload?.[0]) return null
   const data = payload[0].payload
   return (
-    <div className="bg-white rounded-lg shadow-md border border-gray-200 px-3 py-2 text-base">
+    <div className="bg-white rounded-lg shadow-md border border-gray-200 px-2 py-1.5 text-sm lg:px-3 lg:py-2 lg:text-base">
       <span className="font-medium">{data.displayName}</span>
       <span className="text-gray-500 ml-2">
         {data.bankrupt ? '💀 bankrupt' : formatCurrency(data.value)}
@@ -82,9 +101,11 @@ function CustomTooltip({ active, payload }: any) {
 }
 
 export default function ComparisonChart({ results }: ComparisonChartProps) {
+  const isMobile = useIsMobile(1024)
+
   if (results.length === 0) {
     return (
-      <section className="bg-white/50 backdrop-blur-sm rounded-xl shadow-sm border border-amber-300/30 p-6 flex-1 min-h-0">
+      <section className="bg-white/50 backdrop-blur-sm rounded-xl shadow-sm border border-amber-300/30 p-4 lg:p-6 flex-1 min-h-0">
         <div className="flex items-center justify-center h-full text-gray-400 text-sm">
           Add a savings strategy to see the comparison chart
         </div>
@@ -118,19 +139,26 @@ export default function ComparisonChart({ results }: ComparisonChartProps) {
     }
   })
 
+  const labelFontSize = isMobile ? 12 : 16
+  const axisFontSize = isMobile ? 10 : 13
+  const xFormatter = isMobile ? formatCurrencyCompact : formatCurrency
+
   return (
-    <section className="bg-white/60 backdrop-blur-sm rounded-xl shadow-sm border border-amber-300/30 p-6 flex-1 min-h-0 flex flex-col">
+    <section className="bg-white/60 backdrop-blur-sm rounded-xl shadow-sm border border-amber-300/30 p-3 lg:p-6 flex-1 min-h-0 flex flex-col">
       <ResponsiveContainer width="100%" height="100%">
         <BarChart
           data={chartData}
           layout="vertical"
-          margin={{ top: 5, right: 20, bottom: 20, left: 5 }}
+          margin={isMobile
+            ? { top: 2, right: 8, bottom: 16, left: 2 }
+            : { top: 5, right: 20, bottom: 20, left: 5 }
+          }
           barCategoryGap="8%"
         >
           <XAxis
             type="number"
-            tickFormatter={(v: number) => formatCurrency(v)}
-            tick={{ fontSize: 13 }}
+            tickFormatter={xFormatter}
+            tick={{ fontSize: axisFontSize }}
             axisLine={{ stroke: '#e5e7eb' }}
             tickLine={{ stroke: '#e5e7eb' }}
           />
@@ -140,7 +168,7 @@ export default function ComparisonChart({ results }: ComparisonChartProps) {
             {chartData.map((entry, index) => (
               <Cell key={index} fill={entry.color} />
             ))}
-            <LabelList dataKey="name" content={CustomBarLabel} />
+            <LabelList dataKey="name" content={(props: any) => <CustomBarLabel {...props} fontSize={labelFontSize} />} />
           </Bar>
         </BarChart>
       </ResponsiveContainer>

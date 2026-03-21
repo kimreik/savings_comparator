@@ -51,7 +51,7 @@ export default function InputPanel({ params, onParamsChange }: InputPanelProps) 
     onParamsChange({ ...params, [key]: value })
 
   return (
-    <aside className="bg-white/30 backdrop-blur-sm rounded-xl shadow-sm border border-amber-300/30 p-2 w-72 flex flex-col min-h-0 overflow-y-auto">
+    <aside className="bg-white/30 backdrop-blur-sm rounded-xl shadow-sm border border-amber-300/30 p-2 w-full lg:w-72 flex flex-col min-h-0 lg:overflow-y-auto">
       <div className="flex flex-col justify-between flex-1 gap-1.5">
 
         {/* ── Savings ── */}
@@ -95,7 +95,7 @@ export default function InputPanel({ params, onParamsChange }: InputPanelProps) 
               onChange={(e) => set('investmentsRate', Number(e.target.value))}
               className={inputNarrow}
             />
-            <span className="text-lg text-gray-400">%</span>
+            <span className="text-base lg:text-lg text-gray-400">%</span>
             <label className="flex items-center gap-1.5 text-base text-gray-500 cursor-pointer select-none whitespace-nowrap ml-1">
               <input
                 type="checkbox"
@@ -144,7 +144,7 @@ export default function InputPanel({ params, onParamsChange }: InputPanelProps) 
               onChange={(e) => set('downPaymentPercent', Number(e.target.value))}
               className={inputNarrow}
             />
-            <span className="text-lg text-gray-400">%</span>
+            <span className="text-base lg:text-lg text-gray-400">%</span>
           </FieldRow>
           <FieldRow label="Years">
             <input
@@ -156,7 +156,7 @@ export default function InputPanel({ params, onParamsChange }: InputPanelProps) 
               onChange={(e) => set('mortgageYears', Number(e.target.value))}
               className={inputNarrow}
             />
-            <span className="text-lg text-transparent">%</span>
+            <span className="text-base lg:text-lg text-transparent">%</span>
           </FieldRow>
           <FieldRow label="Rate">
             <input
@@ -168,7 +168,7 @@ export default function InputPanel({ params, onParamsChange }: InputPanelProps) 
               onChange={(e) => set('mortgageRate', Number(e.target.value))}
               className={inputNarrow}
             />
-            <span className="text-lg text-gray-400">%</span>
+            <span className="text-base lg:text-lg text-gray-400">%</span>
           </FieldRow>
         </GroupCard>
 
@@ -184,7 +184,7 @@ export default function InputPanel({ params, onParamsChange }: InputPanelProps) 
               onChange={(e) => set('planningHorizon', Number(e.target.value))}
               className={inputNarrow}
             />
-            <span className="text-lg text-gray-400">yr</span>
+            <span className="text-base lg:text-lg text-gray-400">yr</span>
           </FieldRow>
           <FieldRow label="Inflation">
             <input
@@ -196,7 +196,7 @@ export default function InputPanel({ params, onParamsChange }: InputPanelProps) 
               onChange={(e) => set('inflationRate', Number(e.target.value))}
               className={inputNarrow}
             />
-            <span className="text-lg text-gray-400">%</span>
+            <span className="text-base lg:text-lg text-gray-400">%</span>
           </FieldRow>
         </GroupCard>
 
@@ -204,4 +204,5 @@ export default function InputPanel({ params, onParamsChange }: InputPanelProps) 
     </aside>
   )
 }
+
 
