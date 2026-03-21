@@ -1,13 +1,6 @@
 import type { SavingsStrategy, SimulationParams, YearlyResult } from '../types'
 import { registerStrategy } from './registry'
 
-function calcMonthlyPayment(principal: number, annualRate: number, years: number): number {
-  const r = annualRate / 100 / 12
-  const n = years * 12
-  if (r === 0) return principal / n
-  return principal * (r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1)
-}
-
 /**
  * Mortgage max payment + Invest
  *
@@ -34,9 +27,7 @@ const mortgageMaxInvest: SavingsStrategy = {
       incomeTax,
     } = params
 
-    const downPayment = realEstatePrice * (downPaymentPercent / 100)
-    const loanAmount = realEstatePrice - downPayment
-    const minMonthlyPayment = calcMonthlyPayment(loanAmount, mortgageRate, mortgageYears)
+    const minDownPayment = realEstatePrice * (downPaymentPercent / 100)
     const monthlyInflation = Math.pow(1 + inflationRate / 100, 1 / 12) - 1
     const monthlyRate = mortgageRate / 100 / 12
 
@@ -56,6 +47,7 @@ const mortgageMaxInvest: SavingsStrategy = {
     let paidOffYear: number | null = null
     let paidOffMonth: number | null = null
     let totalPaidToBank = 0
+    let actualDownPayment = 0
 
     for (let year = 0; year <= planningHorizon; year++) {
       const gain = Math.max(0, portfolio - totalContributed)
@@ -84,8 +76,11 @@ const mortgageMaxInvest: SavingsStrategy = {
           if (!isDeposit) {
             cash /= (1 + monthlyInflation)
           }
-          if (cash >= downPayment) {
-            cash -= downPayment
+          if (cash >= minDownPayment) {
+            // Aggressive: put all cash toward down payment
+            actualDownPayment = Math.min(cash, realEstatePrice)
+            cash -= actualDownPayment
+            const loanAmount = realEstatePrice - actualDownPayment
             hasMortgage = true
             paymentsRemaining = mortgageYears * 12
             remainingDebt = loanAmount
@@ -116,6 +111,12 @@ const mortgageMaxInvest: SavingsStrategy = {
             paymentsRemaining = 0
             paidOffYear = year
             paidOffMonth = m
+            // Invest leftover from this month's budget
+            const leftover = monthlyBudget - totalPayment + usedFromCash
+            if (leftover > 0) {
+              portfolio += leftover
+              totalContributed += leftover
+            }
             // Move any remaining cash into portfolio
             if (cash > 0) {
               portfolio += cash
@@ -143,9 +144,9 @@ const mortgageMaxInvest: SavingsStrategy = {
     const finalTax = incomeTax ? finalGain * 0.2 : 0
     const finalNetWorth = results[results.length - 1].netWorth
     console.log(`[mortgage max + invest]`, {
-      downPayment: Math.round(downPayment),
-      loanAmount: Math.round(loanAmount),
-      minMonthlyPayment: Math.round(minMonthlyPayment),
+      minDownPayment: Math.round(minDownPayment),
+      actualDownPayment: Math.round(actualDownPayment),
+      loanAmount: Math.round(realEstatePrice - actualDownPayment),
       monthlyBudgetAfterBuy: savingsPerMonth + rentPerMonth,
       realAnnualReturn: `${(realAnnualReturn * 100).toFixed(2)}%`,
       purchasedAt: purchaseYear !== null ? `year ${purchaseYear}, month ${purchaseMonth}` : 'never',

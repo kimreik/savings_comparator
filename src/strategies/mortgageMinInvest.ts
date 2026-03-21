@@ -39,6 +39,7 @@ const mortgageMinInvest: SavingsStrategy = {
     const loanAmount = realEstatePrice - downPayment
     const monthlyPayment = calcMonthlyPayment(loanAmount, mortgageRate, mortgageYears)
     const monthlyInflation = Math.pow(1 + inflationRate / 100, 1 / 12) - 1
+    const monthlyRate = mortgageRate / 100 / 12
 
     // Real monthly investment return (strip out inflation)
     const realAnnualReturn = (1 + investmentsRate / 100) / (1 + inflationRate / 100) - 1
@@ -49,7 +50,7 @@ const mortgageMinInvest: SavingsStrategy = {
     let cash = currentSavings  // cash waiting to be deployed / used for down payment
     let totalContributed = 0   // total money put into portfolio (for tax calc)
     let hasMortgage = false
-    let paymentsRemaining = 0
+    let remainingDebt = 0
     let bankrupt = false
     let purchaseYear: number | null = null
     let purchaseMonth: number | null = null
@@ -66,7 +67,6 @@ const mortgageMinInvest: SavingsStrategy = {
       } else if (!hasMortgage) {
         results.push({ year, netWorth: Math.round(cash + portfolioAfterTax) })
       } else {
-        const remainingDebt = monthlyPayment * paymentsRemaining
         results.push({ year, netWorth: Math.round(realEstatePrice + cash + portfolioAfterTax - remainingDebt) })
       }
 
@@ -89,7 +89,7 @@ const mortgageMinInvest: SavingsStrategy = {
           if (cash >= downPayment) {
             cash -= downPayment
             hasMortgage = true
-            paymentsRemaining = mortgageYears * 12
+            remainingDebt = loanAmount
             purchaseYear = year
             purchaseMonth = m
             // Move remaining cash into the portfolio
@@ -99,13 +99,15 @@ const mortgageMinInvest: SavingsStrategy = {
           }
         } else {
           const monthlyBudget = savingsPerMonth + rentPerMonth
-          if (paymentsRemaining > 0) {
+          if (remainingDebt > 0) {
+            const interestThisMonth = remainingDebt * monthlyRate
             if (monthlyBudget >= monthlyPayment) {
               // Surplus goes to portfolio
               const surplus = monthlyBudget - monthlyPayment
               portfolio += surplus
               totalContributed += surplus
-              paymentsRemaining--
+              const principalPaid = monthlyPayment - interestThisMonth
+              remainingDebt -= principalPaid
               totalPaidToBank += monthlyPayment
             } else {
               // Need to sell investments to cover shortfall
@@ -117,8 +119,12 @@ const mortgageMinInvest: SavingsStrategy = {
                 bankrupt = true
                 break
               }
-              paymentsRemaining--
+              const principalPaid = monthlyPayment - interestThisMonth
+              remainingDebt -= principalPaid
               totalPaidToBank += monthlyPayment
+            }
+            if (remainingDebt <= 0.01) {
+              remainingDebt = 0
             }
           } else {
             // Mortgage paid off — invest the entire budget
@@ -141,14 +147,13 @@ const mortgageMinInvest: SavingsStrategy = {
       realAnnualReturn: `${(realAnnualReturn * 100).toFixed(2)}%`,
       purchasedAt: purchaseYear !== null ? `year ${purchaseYear}, month ${purchaseMonth}` : 'never',
       realEstateValue: realEstatePrice,
-      remainingDebt: Math.round(monthlyPayment * paymentsRemaining),
+      remainingDebt: Math.round(remainingDebt),
       portfolioAtEnd: Math.round(portfolio),
       totalContributed: Math.round(totalContributed),
       investmentGain: Math.round(finalGain),
       incomeTax: incomeTax ? `20% → ${Math.round(finalTax)}` : 'off',
       portfolioAfterTax: Math.round(portfolio - finalTax),
       cashAtEnd: Math.round(cash),
-      paymentsRemaining,
       bankrupt,
       totalPaidToBank: Math.round(totalPaidToBank),
       finalNetWorth,

@@ -7,14 +7,21 @@ const rentMemories: SavingsStrategy = {
   color: '#9b59b6',
   calculate(params: SimulationParams): YearlyResult[] {
     const { currentSavings, inflationRate, planningHorizon, isDeposit } = params
-    const annualInflation = inflationRate / 100
+    const monthlyInflation = Math.pow(1 + inflationRate / 100, 1 / 12) - 1
 
     const data: YearlyResult[] = []
+    let cash = currentSavings
+
     for (let year = 0; year <= planningHorizon; year++) {
-      const realValue = isDeposit
-        ? currentSavings
-        : currentSavings / Math.pow(1 + annualInflation, year)
-      data.push({ year, netWorth: Math.round(realValue) })
+      data.push({ year, netWorth: Math.round(cash) })
+
+      if (year === planningHorizon) continue
+
+      for (let m = 0; m < 12; m++) {
+        if (!isDeposit) {
+          cash /= (1 + monthlyInflation)
+        }
+      }
     }
 
     const finalValue = data[data.length - 1].netWorth

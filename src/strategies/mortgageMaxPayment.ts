@@ -1,13 +1,6 @@
 import type { SavingsStrategy, SimulationParams, YearlyResult } from '../types'
 import { registerStrategy } from './registry'
 
-function calcMonthlyPayment(principal: number, annualRate: number, years: number): number {
-  const r = annualRate / 100 / 12
-  const n = years * 12
-  if (r === 0) return principal / n
-  return principal * (r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1)
-}
-
 /**
  * Mortgage max payment
  *
@@ -34,9 +27,7 @@ const mortgageMaxPayment: SavingsStrategy = {
       inflationRate,
     } = params
 
-    const downPayment = realEstatePrice * (downPaymentPercent / 100)
-    const loanAmount = realEstatePrice - downPayment
-    const minMonthlyPayment = calcMonthlyPayment(loanAmount, mortgageRate, mortgageYears)
+    const minDownPayment = realEstatePrice * (downPaymentPercent / 100)
     const monthlyInflation = Math.pow(1 + inflationRate / 100, 1 / 12) - 1
 
     const results: YearlyResult[] = []
@@ -50,6 +41,7 @@ const mortgageMaxPayment: SavingsStrategy = {
     let paidOffYear: number | null = null
     let paidOffMonth: number | null = null
     let totalPaidToBank = 0
+    let actualDownPayment = 0
 
     // We need to track actual remaining principal for overpayments.
     // With the annuity formula, the monthly interest rate is:
@@ -75,8 +67,11 @@ const mortgageMaxPayment: SavingsStrategy = {
           if (!isDeposit) {
             cash /= (1 + monthlyInflation)
           }
-          if (cash >= downPayment) {
-            cash -= downPayment
+          if (cash >= minDownPayment) {
+            // Aggressive: put all cash toward down payment
+            actualDownPayment = Math.min(cash, realEstatePrice)
+            cash -= actualDownPayment
+            const loanAmount = realEstatePrice - actualDownPayment
             hasMortgage = true
             paymentsRemaining = mortgageYears * 12
             remainingDebt = loanAmount
@@ -130,9 +125,9 @@ const mortgageMaxPayment: SavingsStrategy = {
 
     const finalNetWorth = results[results.length - 1].netWorth
     console.log(`[mortgage max payment]`, {
-      downPayment: Math.round(downPayment),
-      loanAmount: Math.round(loanAmount),
-      minMonthlyPayment: Math.round(minMonthlyPayment),
+      minDownPayment: Math.round(minDownPayment),
+      actualDownPayment: Math.round(actualDownPayment),
+      loanAmount: Math.round(realEstatePrice - actualDownPayment),
       monthlyBudgetAfterBuy: savingsPerMonth + rentPerMonth,
       purchasedAt: purchaseYear !== null ? `year ${purchaseYear}, month ${purchaseMonth}` : 'never',
       paidOffAt: paidOffYear !== null ? `year ${paidOffYear}, month ${paidOffMonth}` : 'never',

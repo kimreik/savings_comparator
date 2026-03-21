@@ -37,11 +37,12 @@ const mortgageMinCash: SavingsStrategy = {
     const loanAmount = realEstatePrice - downPayment
     const monthlyPayment = calcMonthlyPayment(loanAmount, mortgageRate, mortgageYears)
     const monthlyInflation = Math.pow(1 + inflationRate / 100, 1 / 12) - 1
+    const monthlyRate = mortgageRate / 100 / 12
 
     const results: YearlyResult[] = []
     let cash = currentSavings
     let hasMortgage = false
-    let paymentsRemaining = 0
+    let remainingDebt = 0
     let bankrupt = false
     let purchaseYear: number | null = null
     let purchaseMonth: number | null = null
@@ -53,7 +54,6 @@ const mortgageMinCash: SavingsStrategy = {
       } else if (!hasMortgage) {
         results.push({ year, netWorth: Math.round(cash) })
       } else {
-        const remainingDebt = monthlyPayment * paymentsRemaining
         results.push({ year, netWorth: Math.round(realEstatePrice + cash - remainingDebt) })
       }
 
@@ -70,26 +70,32 @@ const mortgageMinCash: SavingsStrategy = {
           if (cash >= downPayment) {
             cash -= downPayment
             hasMortgage = true
-            paymentsRemaining = mortgageYears * 12
+            remainingDebt = loanAmount
             purchaseYear = year
             purchaseMonth = m
           }
         } else {
           const monthlyBudget = savingsPerMonth + rentPerMonth
-          if (paymentsRemaining > 0) {
+          if (remainingDebt > 0) {
+            const interestThisMonth = remainingDebt * monthlyRate
             if (monthlyBudget >= monthlyPayment) {
               cash += (monthlyBudget - monthlyPayment)
-              paymentsRemaining--
+              const principalPaid = monthlyPayment - interestThisMonth
+              remainingDebt -= principalPaid
               totalPaidToBank += monthlyPayment
             } else {
               const shortfall = monthlyPayment - monthlyBudget
               cash -= shortfall
-              paymentsRemaining--
+              const principalPaid = monthlyPayment - interestThisMonth
+              remainingDebt -= principalPaid
               totalPaidToBank += monthlyPayment
               if (cash < 0) {
                 bankrupt = true
                 break
               }
+            }
+            if (remainingDebt <= 0.01) {
+              remainingDebt = 0
             }
           } else {
             // Mortgage paid off — save the entire budget
@@ -112,9 +118,8 @@ const mortgageMinCash: SavingsStrategy = {
       monthlySurplus: Math.round(savingsPerMonth + rentPerMonth - monthlyPayment),
       purchasedAt: purchaseYear !== null ? `year ${purchaseYear}, month ${purchaseMonth}` : 'never',
       realEstateValue: realEstatePrice,
-      remainingDebt: Math.round(monthlyPayment * paymentsRemaining),
+      remainingDebt: Math.round(remainingDebt),
       cashAtEnd: Math.round(cash),
-      paymentsRemaining,
       bankrupt,
       totalPaidToBank: Math.round(totalPaidToBank),
       finalNetWorth,

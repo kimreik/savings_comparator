@@ -17,30 +17,27 @@ const rentCash: SavingsStrategy = {
   color: '#3498db',
   calculate(params: SimulationParams): YearlyResult[] {
     const { currentSavings, savingsPerMonth, inflationRate, planningHorizon, isDeposit } = params
-    const annualInflation = inflationRate / 100
-    const yearlySavings = savingsPerMonth * 12
+    const monthlyInflation = Math.pow(1 + inflationRate / 100, 1 / 12) - 1
 
     const results: YearlyResult[] = []
-    let nominalNewCash = 0
+    let cash = currentSavings
 
     for (let year = 0; year <= planningHorizon; year++) {
-      const realInitial = isDeposit
-        ? currentSavings
-        : currentSavings / Math.pow(1 + annualInflation, year)
+      results.push({ year, netWorth: Math.round(cash) })
 
-      const realNewCash = nominalNewCash / Math.pow(1 + annualInflation, year)
+      if (year === planningHorizon) continue
 
-      results.push({ year, netWorth: Math.round(realInitial + realNewCash) })
-
-      nominalNewCash += yearlySavings
+      for (let m = 0; m < 12; m++) {
+        cash += savingsPerMonth
+        if (!isDeposit) {
+          cash /= (1 + monthlyInflation)
+        }
+      }
     }
 
-    const finalNominal = currentSavings + yearlySavings * planningHorizon
-    const finalReal = results[results.length - 1].netWorth
+    const finalNetWorth = results[results.length - 1].netWorth
     console.log(`[rent + cash]`, {
-      totalNominalSaved: finalNominal,
-      finalRealValue: finalReal,
-      lostToInflation: finalNominal - finalReal,
+      finalRealValue: finalNetWorth,
       deposit: isDeposit,
     })
 
