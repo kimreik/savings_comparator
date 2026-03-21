@@ -80,10 +80,10 @@ const mortgageMinMemories: SavingsStrategy = {
         if (bankrupt) break
 
         if (!hasMortgage) {
-          cash += savingsPerMonth
           if (!isDeposit) {
             cash /= (1 + monthlyInflation)
           }
+          cash += savingsPerMonth
           if (cash >= downPayment) {
             cash -= downPayment
             hasMortgage = true

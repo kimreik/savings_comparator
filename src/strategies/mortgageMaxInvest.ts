@@ -72,10 +72,10 @@ const mortgageMaxInvest: SavingsStrategy = {
 
         if (!hasMortgage) {
           // Phase 1: saving for down payment
-          cash += savingsPerMonth
           if (!isDeposit) {
             cash /= (1 + monthlyInflation)
           }
+          cash += savingsPerMonth
           if (cash >= minDownPayment) {
             // Aggressive: put all cash toward down payment
             actualDownPayment = Math.min(cash, realEstatePrice)

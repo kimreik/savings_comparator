@@ -28,10 +28,10 @@ const rentCash: SavingsStrategy = {
       if (year === planningHorizon) continue
 
       for (let m = 0; m < 12; m++) {
-        cash += savingsPerMonth
         if (!isDeposit) {
           cash /= (1 + monthlyInflation)
         }
+        cash += savingsPerMonth
       }
     }
 
