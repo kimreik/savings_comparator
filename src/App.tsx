@@ -27,11 +27,11 @@ function App() {
   const results = useSimulation(params)
 
   return (
-    <div className="min-h-screen bg-amber-100">
-      <main className="max-w-7xl mx-auto px-4 py-6">
-        <h1 className="text-2xl font-bold text-gray-800 mb-6">Saving types comparison</h1>
+    <div className="h-screen flex flex-col bg-amber-100 overflow-hidden">
+      <main className="max-w-7xl w-full mx-auto px-4 py-4 flex flex-col flex-1 min-h-0">
+        <h1 className="text-3xl font-bold text-gray-800 mb-4 shrink-0">Saving types comparison</h1>
 
-        <div className="grid grid-cols-1 lg:grid-cols-[auto_1fr] gap-6 items-stretch">
+        <div className="grid grid-cols-1 lg:grid-cols-[auto_1fr] gap-6 flex-1 min-h-0">
           <InputPanel
             params={params}
             onParamsChange={setParams}

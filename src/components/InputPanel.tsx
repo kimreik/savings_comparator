@@ -5,54 +5,44 @@ interface InputPanelProps {
   onParamsChange: (params: SimulationParams) => void
 }
 
-const inputCls =
-  'w-full rounded-md border border-gray-300 px-2 py-1 text-sm text-gray-900 ' +
-  'focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none transition-colors'
+const inputBase =
+  'rounded-md border border-gray-300 px-2.5 py-2 text-lg text-gray-900 ' +
+  'focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none transition-colors ' +
+  '[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none'
+
+const inputWide = inputBase + ' w-28'
+const inputNarrow = inputBase + ' w-18'
 
 const checkboxCls =
-  'rounded border-gray-300 text-blue-600 focus:ring-blue-500/20'
+  'size-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500/20'
 
-function MiniField({
+function FieldRow({
   label,
-  value,
-  onChange,
-  min,
-  max,
-  step,
-  suffix,
-  className,
+  children,
 }: {
   label: string
-  value: number
-  onChange: (v: number) => void
-  min?: number
-  max?: number
-  step?: number
-  suffix?: string
-  className?: string
+  children: React.ReactNode
 }) {
   return (
-    <div className={className}>
-      <label className="block text-xs font-medium text-gray-500 mb-0.5">{label}</label>
-      <div className="flex items-center gap-1">
-        <input
-          type="number"
-          value={value}
-          min={min}
-          max={max}
-          step={step ?? 1}
-          onChange={(e) => onChange(Number(e.target.value))}
-          className={inputCls}
-        />
-        {suffix && <span className="text-xs text-gray-400 shrink-0">{suffix}</span>}
-      </div>
+    <div className="flex items-center gap-3">
+      <label className="text-lg font-medium text-gray-600 whitespace-nowrap min-w-0">{label}</label>
+      <div className="flex items-center gap-1.5 ml-auto shrink-0">{children}</div>
     </div>
   )
 }
 
-function GroupLabel({ children }: { children: React.ReactNode }) {
+function GroupCard({
+  title,
+  children,
+}: {
+  title: string
+  children: React.ReactNode
+}) {
   return (
-    <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider">{children}</h3>
+    <div className="bg-white/60 rounded-lg px-4 py-3 space-y-2.5">
+      <h3 className="text-sm font-bold text-amber-700/70 uppercase tracking-wider">{title}</h3>
+      {children}
+    </div>
   )
 }
 
@@ -61,41 +51,32 @@ export default function InputPanel({ params, onParamsChange }: InputPanelProps) 
     onParamsChange({ ...params, [key]: value })
 
   return (
-    <aside className="bg-white/50 backdrop-blur-sm rounded-xl shadow-sm border border-amber-300/30 p-4 w-64 flex flex-col">
-      <div className="flex flex-col justify-between flex-1 gap-3">
+    <aside className="bg-white/30 backdrop-blur-sm rounded-xl shadow-sm border border-amber-300/30 p-2 w-72 flex flex-col min-h-0 overflow-y-auto">
+      <div className="flex flex-col justify-between flex-1 gap-1.5">
 
         {/* ── Savings ── */}
-        <div className="space-y-1.5">
-          <GroupLabel>Savings</GroupLabel>
-
-          <div className="grid grid-cols-2 gap-2">
-            <div>
-              <label className="block text-xs font-medium text-gray-500 mb-0.5">Current</label>
-              <div className="flex items-center gap-1">
-                <input
-                  type="number"
-                  value={params.currentSavings}
-                  min={0}
-                  step={10000}
-                  onChange={(e) => set('currentSavings', Number(e.target.value))}
-                  className={inputCls}
-                />
-              </div>
-            </div>
-            <div>
-              <label className="block text-xs font-medium text-gray-500 mb-0.5">Per month</label>
-              <input
-                type="number"
-                value={params.savingsPerMonth}
-                min={0}
-                step={500}
-                onChange={(e) => set('savingsPerMonth', Number(e.target.value))}
-                className={inputCls}
-              />
-            </div>
-          </div>
-
-          <label className="flex items-center gap-1.5 text-xs text-gray-500 cursor-pointer select-none">
+        <GroupCard title="Savings">
+          <FieldRow label="Current">
+            <input
+              type="number"
+              value={params.currentSavings}
+              min={0}
+              step={10000}
+              onChange={(e) => set('currentSavings', Number(e.target.value))}
+              className={inputWide}
+            />
+          </FieldRow>
+          <FieldRow label="Per month">
+            <input
+              type="number"
+              value={params.savingsPerMonth}
+              min={0}
+              step={500}
+              onChange={(e) => set('savingsPerMonth', Number(e.target.value))}
+              className={inputWide}
+            />
+          </FieldRow>
+          <label className="flex items-center gap-2 text-base text-gray-500 cursor-pointer select-none">
             <input
               type="checkbox"
               checked={params.isDeposit}
@@ -104,124 +85,123 @@ export default function InputPanel({ params, onParamsChange }: InputPanelProps) 
             />
             deposit (protect from inflation)
           </label>
-
-          <div>
-            <label className="block text-xs font-medium text-gray-500 mb-0.5">Invest rate</label>
-            <div className="flex items-center gap-1.5">
+          <FieldRow label="Invest rate">
+            <input
+              type="number"
+              value={params.investmentsRate}
+              min={0}
+              max={100}
+              step={0.5}
+              onChange={(e) => set('investmentsRate', Number(e.target.value))}
+              className={inputNarrow}
+            />
+            <span className="text-lg text-gray-400">%</span>
+            <label className="flex items-center gap-1.5 text-base text-gray-500 cursor-pointer select-none whitespace-nowrap ml-1">
               <input
-                type="number"
-                value={params.investmentsRate}
-                min={0}
-                max={100}
-                step={0.5}
-                onChange={(e) => set('investmentsRate', Number(e.target.value))}
-                className={inputCls}
+                type="checkbox"
+                checked={params.incomeTax}
+                onChange={(e) => set('incomeTax', e.target.checked)}
+                className={checkboxCls}
               />
-              <span className="text-xs text-gray-400 shrink-0">%</span>
-              <label className="flex items-center gap-1 text-xs text-gray-500 cursor-pointer select-none whitespace-nowrap">
-                <input
-                  type="checkbox"
-                  checked={params.incomeTax}
-                  onChange={(e) => set('incomeTax', e.target.checked)}
-                  className={checkboxCls}
-                />
-                tax
-              </label>
-            </div>
-          </div>
-        </div>
-
-        <div className="border-t border-gray-100" />
+              tax
+            </label>
+          </FieldRow>
+        </GroupCard>
 
         {/* ── Property ── */}
-        <div className="space-y-1.5">
-          <GroupLabel>Property</GroupLabel>
-
-          <div className="grid grid-cols-2 gap-2">
-            <MiniField
-              label="Price"
+        <GroupCard title="Property">
+          <FieldRow label="Price">
+            <input
+              type="number"
               value={params.realEstatePrice}
-              onChange={(v) => set('realEstatePrice', v)}
               min={0}
               step={50000}
+              onChange={(e) => set('realEstatePrice', Number(e.target.value))}
+              className={inputWide}
             />
-            <MiniField
-              label="Rent / mo"
+          </FieldRow>
+          <FieldRow label="Rent / mo">
+            <input
+              type="number"
               value={params.rentPerMonth}
-              onChange={(v) => set('rentPerMonth', v)}
               min={0}
               step={100}
+              onChange={(e) => set('rentPerMonth', Number(e.target.value))}
+              className={inputWide}
             />
-          </div>
-        </div>
-
-        <div className="border-t border-gray-100" />
+          </FieldRow>
+        </GroupCard>
 
         {/* ── Mortgage ── */}
-        <div className="space-y-1.5">
-          <GroupLabel>Mortgage</GroupLabel>
-
-          <div className="grid grid-cols-3 gap-2">
-            <MiniField
-              label="Down"
+        <GroupCard title="Mortgage">
+          <FieldRow label="Down">
+            <input
+              type="number"
               value={params.downPaymentPercent}
-              onChange={(v) => set('downPaymentPercent', v)}
               min={0}
               max={100}
               step={1}
-              suffix="%"
+              onChange={(e) => set('downPaymentPercent', Number(e.target.value))}
+              className={inputNarrow}
             />
-            <MiniField
-              label="Years"
+            <span className="text-lg text-gray-400">%</span>
+          </FieldRow>
+          <FieldRow label="Years">
+            <input
+              type="number"
               value={params.mortgageYears}
-              onChange={(v) => set('mortgageYears', v)}
               min={1}
               max={50}
               step={1}
+              onChange={(e) => set('mortgageYears', Number(e.target.value))}
+              className={inputNarrow}
             />
-            <MiniField
-              label="Rate"
+            <span className="text-lg text-transparent">%</span>
+          </FieldRow>
+          <FieldRow label="Rate">
+            <input
+              type="number"
               value={params.mortgageRate}
-              onChange={(v) => set('mortgageRate', v)}
               min={0}
               max={30}
               step={0.1}
-              suffix="%"
+              onChange={(e) => set('mortgageRate', Number(e.target.value))}
+              className={inputNarrow}
             />
-          </div>
-        </div>
-
-        <div className="border-t border-gray-100" />
+            <span className="text-lg text-gray-400">%</span>
+          </FieldRow>
+        </GroupCard>
 
         {/* ── General ── */}
-        <div className="space-y-1.5">
-          <GroupLabel>General</GroupLabel>
-
-          <div className="grid grid-cols-2 gap-2">
-            <MiniField
-              label="Horizon"
+        <GroupCard title="General">
+          <FieldRow label="Horizon">
+            <input
+              type="number"
               value={params.planningHorizon}
-              onChange={(v) => set('planningHorizon', v)}
               min={1}
               max={50}
               step={1}
-              suffix="yr"
+              onChange={(e) => set('planningHorizon', Number(e.target.value))}
+              className={inputNarrow}
             />
-            <MiniField
-              label="Inflation"
+            <span className="text-lg text-gray-400">yr</span>
+          </FieldRow>
+          <FieldRow label="Inflation">
+            <input
+              type="number"
               value={params.inflationRate}
-              onChange={(v) => set('inflationRate', v)}
               min={0}
               max={30}
               step={0.1}
-              suffix="%"
+              onChange={(e) => set('inflationRate', Number(e.target.value))}
+              className={inputNarrow}
             />
-          </div>
-        </div>
+            <span className="text-lg text-gray-400">%</span>
+          </FieldRow>
+        </GroupCard>
 
       </div>
     </aside>
   )
 }
-
 

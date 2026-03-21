@@ -38,7 +38,7 @@ function CustomBarLabel(props: any) {
         y={y + height / 2}
         dy={4}
         textAnchor="start"
-        style={{ fontSize: 13, fontWeight: 600, fill: '#991b1b' }}
+        style={{ fontSize: 16, fontWeight: 600, fill: '#991b1b' }}
       >
         {value}
       </text>
@@ -54,7 +54,7 @@ function CustomBarLabel(props: any) {
       dy={4}
       textAnchor="start"
       style={{
-        fontSize: 13,
+        fontSize: 16,
         fontWeight: 600,
         fill: inside ? '#fff' : '#374151',
         textShadow: inside ? '0 1px 2px rgba(0,0,0,0.3)' : 'none',
@@ -69,13 +69,13 @@ function CustomTooltip({ active, payload }: any) {
   if (!active || !payload?.[0]) return null
   const data = payload[0].payload
   return (
-    <div className="bg-white rounded-lg shadow-md border border-gray-200 px-3 py-2 text-sm">
+    <div className="bg-white rounded-lg shadow-md border border-gray-200 px-3 py-2 text-base">
       <span className="font-medium">{data.displayName}</span>
       <span className="text-gray-500 ml-2">
         {data.bankrupt ? '💀 bankrupt' : formatCurrency(data.value)}
       </span>
       {data.neverBought && !data.bankrupt && (
-        <span className="text-gray-400 ml-1">🏚️ no house</span>
+        <span className="text-gray-400 ml-1">❌🏚️ no house</span>
       )}
     </div>
   )
@@ -84,8 +84,8 @@ function CustomTooltip({ active, payload }: any) {
 export default function ComparisonChart({ results }: ComparisonChartProps) {
   if (results.length === 0) {
     return (
-      <section className="bg-white/50 backdrop-blur-sm rounded-xl shadow-sm border border-amber-300/30 p-6">
-        <div className="flex items-center justify-center h-64 text-gray-400 text-sm">
+      <section className="bg-white/50 backdrop-blur-sm rounded-xl shadow-sm border border-amber-300/30 p-6 flex-1 min-h-0">
+        <div className="flex items-center justify-center h-full text-gray-400 text-sm">
           Add a savings strategy to see the comparison chart
         </div>
       </section>
@@ -106,7 +106,7 @@ export default function ComparisonChart({ results }: ComparisonChartProps) {
     const neverBought = r.neverBought === true
     let name = r.strategy.name
     if (bankrupt) name = `💀 ${name}`
-    else if (neverBought) name = `🏚️ ${name}`
+    else if (neverBought) name = `❌🏚️ ${name}`
 
     return {
       name,
@@ -118,28 +118,25 @@ export default function ComparisonChart({ results }: ComparisonChartProps) {
     }
   })
 
-  const barHeight = 40
-  const chartHeight = Math.max(chartData.length * barHeight + 60, 200)
-
   return (
-    <section className="bg-white/60 backdrop-blur-sm rounded-xl shadow-sm border border-amber-300/30 p-6">
-      <ResponsiveContainer width="100%" height={chartHeight}>
+    <section className="bg-white/60 backdrop-blur-sm rounded-xl shadow-sm border border-amber-300/30 p-6 flex-1 min-h-0 flex flex-col">
+      <ResponsiveContainer width="100%" height="100%">
         <BarChart
           data={chartData}
           layout="vertical"
           margin={{ top: 5, right: 20, bottom: 20, left: 5 }}
-          barCategoryGap="20%"
+          barCategoryGap="8%"
         >
           <XAxis
             type="number"
             tickFormatter={(v: number) => formatCurrency(v)}
-            tick={{ fontSize: 11 }}
+            tick={{ fontSize: 13 }}
             axisLine={{ stroke: '#e5e7eb' }}
             tickLine={{ stroke: '#e5e7eb' }}
           />
           <YAxis type="category" dataKey="name" hide />
           <Tooltip content={<CustomTooltip />} />
-          <Bar dataKey="value" radius={[0, 4, 4, 0]} barSize={28} minPointSize={2}>
+          <Bar dataKey="value" radius={[0, 4, 4, 0]} minPointSize={2}>
             {chartData.map((entry, index) => (
               <Cell key={index} fill={entry.color} />
             ))}
