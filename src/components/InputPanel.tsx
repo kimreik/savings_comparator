@@ -5,7 +5,14 @@ interface InputPanelProps {
   onParamsChange: (params: SimulationParams) => void
 }
 
-function Field({
+const inputCls =
+  'w-full rounded-md border border-gray-300 px-2 py-1 text-sm text-gray-900 ' +
+  'focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none transition-colors'
+
+const checkboxCls =
+  'rounded border-gray-300 text-blue-600 focus:ring-blue-500/20'
+
+function MiniField({
   label,
   value,
   onChange,
@@ -13,6 +20,7 @@ function Field({
   max,
   step,
   suffix,
+  className,
 }: {
   label: string
   value: number
@@ -21,27 +29,30 @@ function Field({
   max?: number
   step?: number
   suffix?: string
+  className?: string
 }) {
   return (
-    <div className="flex items-center gap-3">
-      <label className="text-sm font-medium text-gray-700 w-44 shrink-0 text-right">
-        {label}:
-      </label>
-      <input
-        type="number"
-        value={value}
-        min={min}
-        max={max}
-        step={step ?? 1}
-        onChange={(e) => onChange(Number(e.target.value))}
-        className="w-32 rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900
-                   focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none
-                   transition-colors"
-      />
-      {suffix && (
-        <span className="text-sm text-gray-500">{suffix}</span>
-      )}
+    <div className={className}>
+      <label className="block text-xs font-medium text-gray-500 mb-0.5">{label}</label>
+      <div className="flex items-center gap-1">
+        <input
+          type="number"
+          value={value}
+          min={min}
+          max={max}
+          step={step ?? 1}
+          onChange={(e) => onChange(Number(e.target.value))}
+          className={inputCls}
+        />
+        {suffix && <span className="text-xs text-gray-400 shrink-0">{suffix}</span>}
+      </div>
     </div>
+  )
+}
+
+function GroupLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider">{children}</h3>
   )
 }
 
@@ -50,130 +61,164 @@ export default function InputPanel({ params, onParamsChange }: InputPanelProps) 
     onParamsChange({ ...params, [key]: value })
 
   return (
-    <aside className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 h-fit lg:sticky lg:top-8">
-      <div className="space-y-4">
-        <div className="flex items-center gap-3">
-          <label className="text-sm font-medium text-gray-700 w-44 shrink-0 text-right">
-            Current savings:
-          </label>
-          <input
-            type="number"
-            value={params.currentSavings}
-            min={0}
-            step={10000}
-            onChange={(e) => set('currentSavings', Number(e.target.value))}
-            className="w-32 rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900
-                       focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none
-                       transition-colors"
-          />
-          <label className="flex items-center gap-1.5 text-sm text-gray-600 cursor-pointer select-none whitespace-nowrap">
+    <aside className="bg-white/50 backdrop-blur-sm rounded-xl shadow-sm border border-amber-300/30 p-4 w-64 flex flex-col">
+      <div className="flex flex-col justify-between flex-1 gap-3">
+
+        {/* ── Savings ── */}
+        <div className="space-y-1.5">
+          <GroupLabel>Savings</GroupLabel>
+
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <label className="block text-xs font-medium text-gray-500 mb-0.5">Current</label>
+              <div className="flex items-center gap-1">
+                <input
+                  type="number"
+                  value={params.currentSavings}
+                  min={0}
+                  step={10000}
+                  onChange={(e) => set('currentSavings', Number(e.target.value))}
+                  className={inputCls}
+                />
+              </div>
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-500 mb-0.5">Per month</label>
+              <input
+                type="number"
+                value={params.savingsPerMonth}
+                min={0}
+                step={500}
+                onChange={(e) => set('savingsPerMonth', Number(e.target.value))}
+                className={inputCls}
+              />
+            </div>
+          </div>
+
+          <label className="flex items-center gap-1.5 text-xs text-gray-500 cursor-pointer select-none">
             <input
               type="checkbox"
               checked={params.isDeposit}
               onChange={(e) => set('isDeposit', e.target.checked)}
-              className="rounded border-gray-300 text-blue-600 focus:ring-blue-500/20"
+              className={checkboxCls}
             />
-            deposit
+            deposit (protect from inflation)
           </label>
+
+          <div>
+            <label className="block text-xs font-medium text-gray-500 mb-0.5">Invest rate</label>
+            <div className="flex items-center gap-1.5">
+              <input
+                type="number"
+                value={params.investmentsRate}
+                min={0}
+                max={100}
+                step={0.5}
+                onChange={(e) => set('investmentsRate', Number(e.target.value))}
+                className={inputCls}
+              />
+              <span className="text-xs text-gray-400 shrink-0">%</span>
+              <label className="flex items-center gap-1 text-xs text-gray-500 cursor-pointer select-none whitespace-nowrap">
+                <input
+                  type="checkbox"
+                  checked={params.incomeTax}
+                  onChange={(e) => set('incomeTax', e.target.checked)}
+                  className={checkboxCls}
+                />
+                tax
+              </label>
+            </div>
+          </div>
         </div>
-        <Field
-          label="Savings per month"
-          value={params.savingsPerMonth}
-          onChange={(v) => set('savingsPerMonth', v)}
-          min={0}
-          step={500}
-        />
-        <div className="flex items-center gap-3">
-          <label className="text-sm font-medium text-gray-700 w-44 shrink-0 text-right">
-            Investments rate:
-          </label>
-          <input
-            type="number"
-            value={params.investmentsRate}
-            min={0}
-            max={100}
-            step={0.5}
-            onChange={(e) => set('investmentsRate', Number(e.target.value))}
-            className="w-32 rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900
-                       focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none
-                       transition-colors"
-          />
-          <span className="text-sm text-gray-500">%</span>
-          <label className="flex items-center gap-1.5 text-sm text-gray-600 cursor-pointer select-none whitespace-nowrap">
-            <input
-              type="checkbox"
-              checked={params.incomeTax}
-              onChange={(e) => set('incomeTax', e.target.checked)}
-              className="rounded border-gray-300 text-blue-600 focus:ring-blue-500/20"
+
+        <div className="border-t border-gray-100" />
+
+        {/* ── Property ── */}
+        <div className="space-y-1.5">
+          <GroupLabel>Property</GroupLabel>
+
+          <div className="grid grid-cols-2 gap-2">
+            <MiniField
+              label="Price"
+              value={params.realEstatePrice}
+              onChange={(v) => set('realEstatePrice', v)}
+              min={0}
+              step={50000}
             />
-            tax 20%
-          </label>
+            <MiniField
+              label="Rent / mo"
+              value={params.rentPerMonth}
+              onChange={(v) => set('rentPerMonth', v)}
+              min={0}
+              step={100}
+            />
+          </div>
         </div>
-        <Field
-          label="Planning horizon"
-          value={params.planningHorizon}
-          onChange={(v) => set('planningHorizon', v)}
-          min={1}
-          max={50}
-          step={1}
-          suffix="years"
-        />
 
-        <div className="border-t border-gray-100 my-2" />
+        <div className="border-t border-gray-100" />
 
-        <Field
-          label="Real estate price"
-          value={params.realEstatePrice}
-          onChange={(v) => set('realEstatePrice', v)}
-          min={0}
-          step={50000}
-        />
-        <Field
-          label="Down payment"
-          value={params.downPaymentPercent}
-          onChange={(v) => set('downPaymentPercent', v)}
-          min={0}
-          max={100}
-          step={1}
-          suffix="%"
-        />
-        <Field
-          label="Mortgage years"
-          value={params.mortgageYears}
-          onChange={(v) => set('mortgageYears', v)}
-          min={1}
-          max={50}
-          step={1}
-          suffix="years"
-        />
-        <Field
-          label="Mortgage rate"
-          value={params.mortgageRate}
-          onChange={(v) => set('mortgageRate', v)}
-          min={0}
-          max={30}
-          step={0.1}
-          suffix="%"
-        />
+        {/* ── Mortgage ── */}
+        <div className="space-y-1.5">
+          <GroupLabel>Mortgage</GroupLabel>
 
-        <div className="border-t border-gray-100 my-2" />
+          <div className="grid grid-cols-3 gap-2">
+            <MiniField
+              label="Down"
+              value={params.downPaymentPercent}
+              onChange={(v) => set('downPaymentPercent', v)}
+              min={0}
+              max={100}
+              step={1}
+              suffix="%"
+            />
+            <MiniField
+              label="Years"
+              value={params.mortgageYears}
+              onChange={(v) => set('mortgageYears', v)}
+              min={1}
+              max={50}
+              step={1}
+            />
+            <MiniField
+              label="Rate"
+              value={params.mortgageRate}
+              onChange={(v) => set('mortgageRate', v)}
+              min={0}
+              max={30}
+              step={0.1}
+              suffix="%"
+            />
+          </div>
+        </div>
 
-        <Field
-          label="Rent per month"
-          value={params.rentPerMonth}
-          onChange={(v) => set('rentPerMonth', v)}
-          min={0}
-          step={100}
-        />
-        <Field
-          label="Inflation rate"
-          value={params.inflationRate}
-          onChange={(v) => set('inflationRate', v)}
-          min={0}
-          max={30}
-          step={0.1}
-          suffix="%"
-        />
+        <div className="border-t border-gray-100" />
+
+        {/* ── General ── */}
+        <div className="space-y-1.5">
+          <GroupLabel>General</GroupLabel>
+
+          <div className="grid grid-cols-2 gap-2">
+            <MiniField
+              label="Horizon"
+              value={params.planningHorizon}
+              onChange={(v) => set('planningHorizon', v)}
+              min={1}
+              max={50}
+              step={1}
+              suffix="yr"
+            />
+            <MiniField
+              label="Inflation"
+              value={params.inflationRate}
+              onChange={(v) => set('inflationRate', v)}
+              min={0}
+              max={30}
+              step={0.1}
+              suffix="%"
+            />
+          </div>
+        </div>
+
       </div>
     </aside>
   )

@@ -18,7 +18,7 @@ function calcMonthlyPayment(principal: number, annualRate: number, years: number
 const mortgageMinInvest: SavingsStrategy = {
   id: 'mortgage-min-invest',
   name: 'mortgage min payment + invest',
-  color: '#FFD700', // yellow
+  color: '#f59e0b', // amber
   calculate(params: SimulationParams): YearlyResult[] {
     const {
       currentSavings,
@@ -133,6 +133,11 @@ const mortgageMinInvest: SavingsStrategy = {
           }
         }
       }
+    }
+
+    // If we never managed to buy, flag the final result
+    if (!hasMortgage) {
+      results[results.length - 1].neverBought = true
     }
 
     const finalGain = Math.max(0, portfolio - totalContributed)

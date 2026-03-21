@@ -8,12 +8,14 @@ export function useSimulation(params: SimulationParams): StrategyResult[] {
   return useMemo(() => {
     return strategies.map((strategy) => {
       const data = strategy.calculate(params)
-      const finalNetWorth = data.length > 0 ? data[data.length - 1].netWorth : 0
+      const lastEntry = data.length > 0 ? data[data.length - 1] : null
+      const finalNetWorth = lastEntry?.netWorth ?? 0
 
       return {
         strategy,
         data,
         finalNetWorth,
+        neverBought: lastEntry?.neverBought,
       }
     })
   }, [strategies, params])

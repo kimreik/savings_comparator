@@ -12,7 +12,7 @@ import { registerStrategy } from './registry'
 const mortgageMaxPayment: SavingsStrategy = {
   id: 'mortgage-max-payment',
   name: 'mortgage max payment + memories',
-  color: '#FF0000', // red
+  color: '#f43f5e', // rose
   calculate(params: SimulationParams): YearlyResult[] {
     const {
       currentSavings,
@@ -121,6 +121,11 @@ const mortgageMaxPayment: SavingsStrategy = {
           }
         }
       }
+    }
+
+    // If we never managed to buy, flag the final result
+    if (!hasMortgage) {
+      results[results.length - 1].neverBought = true
     }
 
     const finalNetWorth = results[results.length - 1].netWorth

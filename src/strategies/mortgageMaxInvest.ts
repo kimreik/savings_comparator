@@ -10,7 +10,7 @@ import { registerStrategy } from './registry'
 const mortgageMaxInvest: SavingsStrategy = {
   id: 'mortgage-max-invest',
   name: 'mortgage max payment + invest',
-  color: '#228B22', // dark green
+  color: '#0d9488', // teal
   calculate(params: SimulationParams): YearlyResult[] {
     const {
       currentSavings,
@@ -149,6 +149,11 @@ const mortgageMaxInvest: SavingsStrategy = {
           totalContributed += monthlyBudget
         }
       }
+    }
+
+    // If we never managed to buy, flag the final result
+    if (!hasMortgage) {
+      results[results.length - 1].neverBought = true
     }
 
     const finalGain = Math.max(0, portfolio - totalContributed)

@@ -3,7 +3,6 @@ import type { SimulationParams } from './types'
 import { useSimulation } from './hooks/useSimulation'
 import InputPanel from './components/InputPanel'
 import ComparisonChart from './components/ComparisonChart'
-import SummaryTable from './components/SummaryTable'
 
 // Ensure all strategy modules are loaded (they self-register on import)
 import './strategies'
@@ -28,24 +27,17 @@ function App() {
   const results = useSimulation(params)
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white shadow-sm border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 py-4">
-          <h1 className="text-2xl font-bold text-gray-900">Saving types comparison</h1>
-        </div>
-      </header>
+    <div className="min-h-screen bg-amber-100">
+      <main className="max-w-7xl mx-auto px-4 py-6">
+        <h1 className="text-2xl font-bold text-gray-800 mb-6">Saving types comparison</h1>
 
-      <main className="max-w-7xl mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-[auto_1fr] gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-[auto_1fr] gap-6 items-stretch">
           <InputPanel
             params={params}
             onParamsChange={setParams}
           />
 
-          <div className="space-y-8">
-            <ComparisonChart results={results} />
-            <SummaryTable results={results} />
-          </div>
+          <ComparisonChart results={results} />
         </div>
       </main>
     </div>

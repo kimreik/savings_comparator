@@ -14,7 +14,7 @@ import { registerStrategy } from './registry'
 const rentCash: SavingsStrategy = {
   id: 'rent-cash',
   name: 'rent + cash',
-  color: '#3498db',
+  color: '#6366f1', // indigo
   calculate(params: SimulationParams): YearlyResult[] {
     const { currentSavings, savingsPerMonth, inflationRate, planningHorizon, isDeposit } = params
     const monthlyInflation = Math.pow(1 + inflationRate / 100, 1 / 12) - 1

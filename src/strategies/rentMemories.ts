@@ -4,7 +4,7 @@ import { registerStrategy } from './registry'
 const rentMemories: SavingsStrategy = {
   id: 'rent-memories',
   name: 'rent + memories',
-  color: '#9b59b6',
+  color: '#a78bfa', // violet
   calculate(params: SimulationParams): YearlyResult[] {
     const { currentSavings, inflationRate, planningHorizon, isDeposit } = params
     const monthlyInflation = Math.pow(1 + inflationRate / 100, 1 / 12) - 1

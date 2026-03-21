@@ -18,7 +18,7 @@ function calcMonthlyPayment(principal: number, annualRate: number, years: number
 const mortgageMinCash: SavingsStrategy = {
   id: 'mortgage-min-cash',
   name: 'mortgage min payment + cash',
-  color: '#FF8C00', // orange
+  color: '#f97316', // orange
   calculate(params: SimulationParams): YearlyResult[] {
     const {
       currentSavings,
@@ -107,6 +107,11 @@ const mortgageMinCash: SavingsStrategy = {
           }
         }
       }
+    }
+
+    // If we never managed to buy, flag the final result
+    if (!hasMortgage) {
+      results[results.length - 1].neverBought = true
     }
 
     const finalNetWorth = results[results.length - 1].netWorth

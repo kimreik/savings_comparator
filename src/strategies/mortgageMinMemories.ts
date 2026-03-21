@@ -33,7 +33,7 @@ function calcMonthlyPayment(principal: number, annualRate: number, years: number
 const mortgageMinMemories: SavingsStrategy = {
   id: 'mortgage-min-memories',
   name: 'mortgage min payment + memories',
-  color: '#87CEEB', // light blue
+  color: '#38bdf8', // sky
   calculate(params: SimulationParams): YearlyResult[] {
     const {
       currentSavings,
@@ -120,6 +120,11 @@ const mortgageMinMemories: SavingsStrategy = {
           }
         }
       }
+    }
+
+    // If we never managed to buy, flag the final result
+    if (!hasMortgage) {
+      results[results.length - 1].neverBought = true
     }
 
     const finalNetWorth = results[results.length - 1].netWorth

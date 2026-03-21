@@ -28,6 +28,8 @@ export interface SimulationParams {
 export interface YearlyResult {
   year: number
   netWorth: number
+  /** Set on final year for mortgage strategies that never accumulated enough for a down payment */
+  neverBought?: boolean
 }
 
 export interface SavingsStrategy {
@@ -42,6 +44,8 @@ export interface StrategyResult {
   strategy: SavingsStrategy
   data: YearlyResult[]
   finalNetWorth: number
+  /** True if a mortgage strategy never accumulated enough for the down payment */
+  neverBought?: boolean
 }
 
 

@@ -13,7 +13,7 @@ import { registerStrategy } from './registry'
 const rentInvest: SavingsStrategy = {
   id: 'rent-invest',
   name: 'rent + invest',
-  color: '#2ECC40', // bright green
+  color: '#10b981', // emerald
   calculate(params: SimulationParams): YearlyResult[] {
     const {
       currentSavings,

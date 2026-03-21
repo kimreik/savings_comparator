@@ -11,7 +11,7 @@ import { registerStrategy } from './registry'
 const mortgageMaxCash: SavingsStrategy = {
   id: 'mortgage-max-cash',
   name: 'mortgage max payment + cash',
-  color: '#008B8B', // dark cyan / teal
+  color: '#06b6d4', // cyan
   calculate(params: SimulationParams): YearlyResult[] {
     const {
       currentSavings,
@@ -123,6 +123,11 @@ const mortgageMaxCash: SavingsStrategy = {
           cash += monthlyBudget
         }
       }
+    }
+
+    // If we never managed to buy, flag the final result
+    if (!hasMortgage) {
+      results[results.length - 1].neverBought = true
     }
 
     const finalNetWorth = results[results.length - 1].netWorth
