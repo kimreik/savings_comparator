@@ -30,6 +30,7 @@ const mortgageMinInvest: SavingsStrategy = {
       mortgageYears,
       mortgageRate,
       rentPerMonth,
+      isDeposit,
       inflationRate,
       incomeTax,
     } = params
@@ -80,8 +81,10 @@ const mortgageMinInvest: SavingsStrategy = {
         if (!hasMortgage) {
           // Phase 1: saving for down payment — keep cash liquid
           cash += savingsPerMonth
-          // Cash erodes by inflation while waiting
-          cash /= (1 + monthlyInflation)
+          // Cash erodes by inflation while waiting (unless deposit)
+          if (!isDeposit) {
+            cash /= (1 + monthlyInflation)
+          }
 
           if (cash >= downPayment) {
             cash -= downPayment
