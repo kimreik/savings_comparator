@@ -86,6 +86,17 @@ const mortgageMaxInvest: SavingsStrategy = {
             remainingDebt = loanAmount
             purchaseYear = year
             purchaseMonth = m
+            // If bought outright (no debt), move leftover cash into portfolio
+            if (remainingDebt === 0) {
+              paymentsRemaining = 0
+              paidOffYear = year
+              paidOffMonth = m
+              if (cash > 0) {
+                portfolio += cash
+                totalContributed += cash
+                cash = 0
+              }
+            }
           }
         } else if (remainingDebt > 0) {
           // Erode existing cash first (month passes)
