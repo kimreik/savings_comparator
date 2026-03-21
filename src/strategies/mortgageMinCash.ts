@@ -1,9 +1,6 @@
 import type { SavingsStrategy, SimulationParams, YearlyResult } from '../types'
 import { registerStrategy } from './registry'
 
-/**
- * Calculate fixed monthly mortgage payment (annuity formula).
- */
 function calcMonthlyPayment(principal: number, annualRate: number, years: number): number {
   const r = annualRate / 100 / 12
   const n = years * 12
@@ -12,28 +9,16 @@ function calcMonthlyPayment(principal: number, annualRate: number, years: number
 }
 
 /**
- * Mortgage min payment + Memories
+ * Mortgage min payment + Cash
  *
- * All monetary flows (salary, rent, mortgage payment) are assumed to be indexed
- * to inflation, so we work entirely in real (today's money) terms.
- * The only inflation effect: idle cash (non-deposit) loses value each year.
- *
- * Phase 1 — saving for down payment:
- *   Each year, add savingsPerMonth * 12 to cash. Cash erodes by inflation if not deposit.
- *   Once cash >= downPayment, buy the property.
- *
- * Phase 2 — mortgage:
- *   Stop paying rent → monthly budget becomes savingsPerMonth + rentPerMonth.
- *   Pay the fixed monthly mortgage payment from that budget.
- *   If budget < payment, dip into cash. If cash runs out → bankrupt (netWorth = -1).
- *   "Memories" = any surplus is spent, not saved.
- *
- * Net worth = realEstatePrice + cash − remainingMortgage  (all in real terms)
+ * Same as "mortgage min payment + memories", but any monthly surplus
+ * after paying the mortgage is saved as cash (added to current savings).
+ * If deposit is on, all cash holds real value. Otherwise it erodes by inflation.
  */
-const mortgageMinMemories: SavingsStrategy = {
-  id: 'mortgage-min-memories',
-  name: 'mortgage min payment + memories',
-  color: '#87CEEB', // light blue
+const mortgageMinCash: SavingsStrategy = {
+  id: 'mortgage-min-cash',
+  name: 'mortgage min payment + cash',
+  color: '#FF8C00', // orange
   calculate(params: SimulationParams): YearlyResult[] {
     const {
       currentSavings,
@@ -63,7 +48,6 @@ const mortgageMinMemories: SavingsStrategy = {
     let totalPaidToBank = 0
 
     for (let year = 0; year <= planningHorizon; year++) {
-      // --- Snapshot net worth at the start of this year ---
       if (bankrupt) {
         results.push({ year, netWorth: -1 })
       } else if (!hasMortgage) {
@@ -75,7 +59,6 @@ const mortgageMinMemories: SavingsStrategy = {
 
       if (year === planningHorizon || bankrupt) continue
 
-      // --- Simulate 12 months ---
       for (let m = 0; m < 12; m++) {
         if (bankrupt) break
 
@@ -92,9 +75,10 @@ const mortgageMinMemories: SavingsStrategy = {
             purchaseMonth = m
           }
         } else {
+          const monthlyBudget = savingsPerMonth + rentPerMonth
           if (paymentsRemaining > 0) {
-            const monthlyBudget = savingsPerMonth + rentPerMonth
             if (monthlyBudget >= monthlyPayment) {
+              cash += (monthlyBudget - monthlyPayment)
               paymentsRemaining--
               totalPaidToBank += monthlyPayment
             } else {
@@ -107,7 +91,11 @@ const mortgageMinMemories: SavingsStrategy = {
                 break
               }
             }
+          } else {
+            // Mortgage paid off — save the entire budget
+            cash += monthlyBudget
           }
+          // Cash erodes by inflation if not deposit
           if (!isDeposit && cash > 0) {
             cash /= (1 + monthlyInflation)
           }
@@ -116,14 +104,14 @@ const mortgageMinMemories: SavingsStrategy = {
     }
 
     const finalNetWorth = results[results.length - 1].netWorth
-    console.log(`[mortgage min + memories]`, {
+    console.log(`[mortgage min + cash]`, {
       downPayment: Math.round(downPayment),
       loanAmount: Math.round(loanAmount),
       monthlyPayment: Math.round(monthlyPayment),
       monthlyBudgetAfterBuy: savingsPerMonth + rentPerMonth,
       monthlySurplus: Math.round(savingsPerMonth + rentPerMonth - monthlyPayment),
       purchasedAt: purchaseYear !== null ? `year ${purchaseYear}, month ${purchaseMonth}` : 'never',
-      realEstateValue: realEstatePrice, // constant in real terms (grows >= inflation)
+      realEstateValue: realEstatePrice,
       remainingDebt: Math.round(monthlyPayment * paymentsRemaining),
       cashAtEnd: Math.round(cash),
       paymentsRemaining,
@@ -136,6 +124,5 @@ const mortgageMinMemories: SavingsStrategy = {
   },
 }
 
-registerStrategy(mortgageMinMemories)
-
+registerStrategy(mortgageMinCash)
 

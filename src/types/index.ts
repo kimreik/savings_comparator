@@ -7,6 +7,8 @@ export interface SimulationParams {
   savingsPerMonth: number
   /** Expected annual return on investments (e.g. 10 = 10%) */
   investmentsRate: number
+  /** Whether 20% income tax is applied on investment gains */
+  incomeTax: boolean
   /** Planning horizon in years */
   planningHorizon: number
   /** Total price of the real estate */

@@ -83,15 +83,32 @@ export default function InputPanel({ params, onParamsChange }: InputPanelProps) 
           min={0}
           step={500}
         />
-        <Field
-          label="Investments rate"
-          value={params.investmentsRate}
-          onChange={(v) => set('investmentsRate', v)}
-          min={0}
-          max={100}
-          step={0.5}
-          suffix="%"
-        />
+        <div className="flex items-center gap-3">
+          <label className="text-sm font-medium text-gray-700 w-44 shrink-0 text-right">
+            Investments rate:
+          </label>
+          <input
+            type="number"
+            value={params.investmentsRate}
+            min={0}
+            max={100}
+            step={0.5}
+            onChange={(e) => set('investmentsRate', Number(e.target.value))}
+            className="w-32 rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900
+                       focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none
+                       transition-colors"
+          />
+          <span className="text-sm text-gray-500">%</span>
+          <label className="flex items-center gap-1.5 text-sm text-gray-600 cursor-pointer select-none whitespace-nowrap">
+            <input
+              type="checkbox"
+              checked={params.incomeTax}
+              onChange={(e) => set('incomeTax', e.target.checked)}
+              className="rounded border-gray-300 text-blue-600 focus:ring-blue-500/20"
+            />
+            tax 20%
+          </label>
+        </div>
         <Field
           label="Planning horizon"
           value={params.planningHorizon}

@@ -2,5 +2,9 @@
 import './rentMemories'
 import './rentCash'
 import './mortgageMinMemories'
+import './mortgageMinCash'
+import './mortgageMaxPayment'
+import './mortgageMinInvest'
+import './mortgageMaxInvest'
 
 

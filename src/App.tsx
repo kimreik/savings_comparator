@@ -13,6 +13,7 @@ const DEFAULT_PARAMS: SimulationParams = {
   isDeposit: false,
   savingsPerMonth: 5_000,
   investmentsRate: 10,
+  incomeTax: false,
   planningHorizon: 30,
   realEstatePrice: 1_200_000,
   downPaymentPercent: 20,
