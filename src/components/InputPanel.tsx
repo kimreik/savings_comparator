@@ -1,4 +1,5 @@
 import type { SimulationParams } from '../types'
+import { t } from '../i18n'
 
 interface InputPanelProps {
   params: SimulationParams
@@ -12,6 +13,7 @@ const inputBase =
 
 const inputWide = inputBase + ' w-28'
 const inputNarrow = inputBase + ' w-18'
+const inputXNarrow = inputBase + ' w-14'
 
 const checkboxCls =
   'size-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500/20'
@@ -55,8 +57,8 @@ export default function InputPanel({ params, onParamsChange }: InputPanelProps) 
       <div className="flex flex-col justify-between flex-1 gap-1.5">
 
         {/* ── Savings ── */}
-        <GroupCard title="Savings">
-          <FieldRow label="Current">
+        <GroupCard title={t('group.savings')}>
+          <FieldRow label={t('label.current')}>
             <input
               type="number"
               value={params.currentSavings}
@@ -66,7 +68,7 @@ export default function InputPanel({ params, onParamsChange }: InputPanelProps) 
               className={inputWide}
             />
           </FieldRow>
-          <FieldRow label="Per month">
+          <FieldRow label={t('label.perMonth')}>
             <input
               type="number"
               value={params.savingsPerMonth}
@@ -83,9 +85,9 @@ export default function InputPanel({ params, onParamsChange }: InputPanelProps) 
               onChange={(e) => set('isDeposit', e.target.checked)}
               className={checkboxCls}
             />
-            deposit (protect from inflation)
+            {t('label.deposit')}
           </label>
-          <FieldRow label="Invest rate">
+          <FieldRow label={t('label.investRate')}>
             <input
               type="number"
               value={params.investmentsRate}
@@ -93,7 +95,7 @@ export default function InputPanel({ params, onParamsChange }: InputPanelProps) 
               max={100}
               step={0.5}
               onChange={(e) => set('investmentsRate', Number(e.target.value))}
-              className={inputNarrow}
+              className={inputXNarrow}
             />
             <span className="text-base lg:text-lg text-gray-400">%</span>
             <label className="flex items-center gap-1.5 text-base text-gray-500 cursor-pointer select-none whitespace-nowrap ml-1">
@@ -103,14 +105,14 @@ export default function InputPanel({ params, onParamsChange }: InputPanelProps) 
                 onChange={(e) => set('incomeTax', e.target.checked)}
                 className={checkboxCls}
               />
-              tax
+              {t('label.tax')}
             </label>
           </FieldRow>
         </GroupCard>
 
         {/* ── Property ── */}
-        <GroupCard title="Property">
-          <FieldRow label="Price">
+        <GroupCard title={t('group.property')}>
+          <FieldRow label={t('label.price')}>
             <input
               type="number"
               value={params.realEstatePrice}
@@ -120,7 +122,7 @@ export default function InputPanel({ params, onParamsChange }: InputPanelProps) 
               className={inputWide}
             />
           </FieldRow>
-          <FieldRow label="Rent / mo">
+          <FieldRow label={t('label.rent')}>
             <input
               type="number"
               value={params.rentPerMonth}
@@ -133,8 +135,8 @@ export default function InputPanel({ params, onParamsChange }: InputPanelProps) 
         </GroupCard>
 
         {/* ── Mortgage ── */}
-        <GroupCard title="Mortgage">
-          <FieldRow label="Down">
+        <GroupCard title={t('group.mortgage')}>
+          <FieldRow label={t('label.down')}>
             <input
               type="number"
               value={params.downPaymentPercent}
@@ -146,7 +148,7 @@ export default function InputPanel({ params, onParamsChange }: InputPanelProps) 
             />
             <span className="text-base lg:text-lg text-gray-400">%</span>
           </FieldRow>
-          <FieldRow label="Years">
+          <FieldRow label={t('label.years')}>
             <input
               type="number"
               value={params.mortgageYears}
@@ -158,7 +160,7 @@ export default function InputPanel({ params, onParamsChange }: InputPanelProps) 
             />
             <span className="text-base lg:text-lg text-transparent">%</span>
           </FieldRow>
-          <FieldRow label="Rate">
+          <FieldRow label={t('label.rate')}>
             <input
               type="number"
               value={params.mortgageRate}
@@ -173,8 +175,8 @@ export default function InputPanel({ params, onParamsChange }: InputPanelProps) 
         </GroupCard>
 
         {/* ── General ── */}
-        <GroupCard title="General">
-          <FieldRow label="Horizon">
+        <GroupCard title={t('group.general')}>
+          <FieldRow label={t('label.horizon')}>
             <input
               type="number"
               value={params.planningHorizon}
@@ -186,7 +188,7 @@ export default function InputPanel({ params, onParamsChange }: InputPanelProps) 
             />
             <span className="text-base lg:text-lg text-gray-400">yr</span>
           </FieldRow>
-          <FieldRow label="Inflation">
+          <FieldRow label={t('label.inflation')}>
             <input
               type="number"
               value={params.inflationRate}

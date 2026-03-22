@@ -12,6 +12,7 @@ import { registerStrategy } from './registry'
 const mortgageMaxPayment: SavingsStrategy = {
   id: 'mortgage-max-payment',
   name: 'mortgage max payment + memories',
+  nameKey: 'strategy.mortgageMaxMemories',
   color: '#f43f5e', // rose
   calculate(params: SimulationParams): YearlyResult[] {
     const {

@@ -4,6 +4,7 @@ import { registerStrategy } from './registry'
 const rentMemories: SavingsStrategy = {
   id: 'rent-memories',
   name: 'rent + memories',
+  nameKey: 'strategy.rentMemories',
   color: '#a78bfa', // violet
   calculate(params: SimulationParams): YearlyResult[] {
     const { currentSavings, inflationRate, planningHorizon, isDeposit } = params

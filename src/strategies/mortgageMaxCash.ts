@@ -11,6 +11,7 @@ import { registerStrategy } from './registry'
 const mortgageMaxCash: SavingsStrategy = {
   id: 'mortgage-max-cash',
   name: 'mortgage max payment + cash',
+  nameKey: 'strategy.mortgageMaxCash',
   color: '#06b6d4', // cyan
   calculate(params: SimulationParams): YearlyResult[] {
     const {

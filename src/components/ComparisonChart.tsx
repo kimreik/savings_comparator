@@ -10,6 +10,8 @@ import {
 } from 'recharts'
 import { useEffect, useState } from 'react'
 import type { StrategyResult } from '../types'
+import { t } from '../i18n'
+import type { TranslationKey } from '../i18n'
 
 interface ComparisonChartProps {
   results: StrategyResult[]
@@ -91,10 +93,10 @@ function CustomTooltip({ active, payload }: any) {
     <div className="bg-white rounded-lg shadow-md border border-gray-200 px-2 py-1.5 text-sm lg:px-3 lg:py-2 lg:text-base">
       <span className="font-medium">{data.displayName}</span>
       <span className="text-gray-500 ml-2">
-        {data.bankrupt ? '💀 bankrupt' : formatCurrency(data.value)}
+        {data.bankrupt ? t('chart.bankrupt') : formatCurrency(data.value)}
       </span>
       {data.neverBought && !data.bankrupt && (
-        <span className="text-gray-400 ml-1">❌🏚️ no house</span>
+        <span className="text-gray-400 ml-1">{t('chart.noHouse')}</span>
       )}
     </div>
   )
@@ -107,7 +109,7 @@ export default function ComparisonChart({ results }: ComparisonChartProps) {
     return (
       <section className="bg-white/50 backdrop-blur-sm rounded-xl shadow-sm border border-amber-300/30 p-4 lg:p-6 flex-1 min-h-0">
         <div className="flex items-center justify-center h-full text-gray-400 text-sm">
-          Add a savings strategy to see the comparison chart
+          {t('chart.empty')}
         </div>
       </section>
     )
@@ -125,13 +127,16 @@ export default function ComparisonChart({ results }: ComparisonChartProps) {
   const chartData = sorted.map((r) => {
     const bankrupt = r.finalNetWorth === -1
     const neverBought = r.neverBought === true
-    let name = r.strategy.name
-    if (bankrupt) name = `💀 ${name}`
-    else if (neverBought) name = `❌🏚️ ${name}`
+    const displayName = r.strategy.nameKey
+      ? t(r.strategy.nameKey as TranslationKey)
+      : r.strategy.name
+    let name = displayName
+    if (bankrupt) name = `💀 ${displayName}`
+    else if (neverBought) name = `❌🏚️ ${displayName}`
 
     return {
       name,
-      displayName: r.strategy.name,
+      displayName,
       value: bankrupt ? 0 : r.finalNetWorth,
       bankrupt,
       neverBought,
@@ -144,37 +149,43 @@ export default function ComparisonChart({ results }: ComparisonChartProps) {
   const xFormatter = isMobile ? formatCurrencyCompact : formatCurrency
 
   return (
-    <section className="bg-white/60 backdrop-blur-sm rounded-xl shadow-sm border border-amber-300/30 p-3 lg:p-6 flex-1 min-h-0 flex flex-col">
-      <ResponsiveContainer width="100%" height="100%">
-        <BarChart
-          data={chartData}
-          layout="vertical"
-          margin={isMobile
-            ? { top: 2, right: 8, bottom: 16, left: 2 }
-            : { top: 5, right: 20, bottom: 20, left: 5 }
-          }
-          barCategoryGap="8%"
-        >
-          <XAxis
-            type="number"
-            tickFormatter={xFormatter}
-            tick={{ fontSize: axisFontSize }}
-            axisLine={{ stroke: '#e5e7eb' }}
-            tickLine={{ stroke: '#e5e7eb' }}
-          />
-          <YAxis type="category" dataKey="name" hide />
-          <Tooltip content={<CustomTooltip />} />
-          <Bar dataKey="value" radius={[0, 4, 4, 0]} minPointSize={2}>
-            {chartData.map((entry, index) => (
-              <Cell key={index} fill={entry.color} />
-            ))}
-            <LabelList dataKey="name" content={(props: any) => <CustomBarLabel {...props} fontSize={labelFontSize} />} />
-          </Bar>
-        </BarChart>
-      </ResponsiveContainer>
+    <section className="bg-white/60 backdrop-blur-sm rounded-xl shadow-sm border border-amber-300/30 p-3 lg:p-6 flex-1 min-h-0 flex flex-col outline-none">
+      <div className="flex-1 min-h-0" style={{ outline: 'none' }} tabIndex={-1}>
+        <ResponsiveContainer width="100%" height="100%">
+          <BarChart
+            data={chartData}
+            layout="vertical"
+            margin={isMobile
+              ? { top: 2, right: 8, bottom: 16, left: 2 }
+              : { top: 5, right: 20, bottom: 20, left: 5 }
+            }
+            barCategoryGap="8%"
+            style={{ outline: 'none' }}
+          >
+            <XAxis
+              type="number"
+              tickFormatter={xFormatter}
+              tick={{ fontSize: axisFontSize }}
+              axisLine={{ stroke: '#e5e7eb' }}
+              tickLine={{ stroke: '#e5e7eb' }}
+            />
+            <YAxis type="category" dataKey="name" hide />
+            <Tooltip content={<CustomTooltip />} cursor={false} />
+            <Bar dataKey="value" radius={[0, 4, 4, 0]} minPointSize={2}>
+              {chartData.map((entry, index) => (
+                <Cell key={index} fill={entry.color} />
+              ))}
+              <LabelList dataKey="name" content={(props: any) => <CustomBarLabel {...props} fontSize={labelFontSize} />} />
+            </Bar>
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
     </section>
   )
 }
+
+
+
 
 
 

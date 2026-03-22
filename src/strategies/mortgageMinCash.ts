@@ -18,6 +18,7 @@ function calcMonthlyPayment(principal: number, annualRate: number, years: number
 const mortgageMinCash: SavingsStrategy = {
   id: 'mortgage-min-cash',
   name: 'mortgage min payment + cash',
+  nameKey: 'strategy.mortgageMinCash',
   color: '#f97316', // orange
   calculate(params: SimulationParams): YearlyResult[] {
     const {

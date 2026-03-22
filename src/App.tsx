@@ -3,6 +3,7 @@ import type { SimulationParams } from './types'
 import { useSimulation } from './hooks/useSimulation'
 import InputPanel from './components/InputPanel'
 import ComparisonChart from './components/ComparisonChart'
+import { t } from './i18n'
 
 // Ensure all strategy modules are loaded (they self-register on import)
 import './strategies'
@@ -39,7 +40,7 @@ function App() {
               : 'text-gray-500'
           }`}
         >
-          📊 Chart
+          {t('app.tab.chart')}
         </button>
         <button
           onClick={() => setMobileTab('settings')}
@@ -49,13 +50,13 @@ function App() {
               : 'text-gray-500'
           }`}
         >
-          ⚙️ Settings
+          {t('app.tab.settings')}
         </button>
       </div>
 
       <main className="max-w-7xl w-full mx-auto px-3 py-3 lg:px-4 lg:py-4 flex flex-col flex-1 min-h-0">
         <h1 className="hidden lg:block text-3xl font-bold text-gray-800 mb-4 shrink-0">
-          Saving types comparison
+          {t('app.title')}
         </h1>
 
         {/* ── Desktop: side-by-side ── */}

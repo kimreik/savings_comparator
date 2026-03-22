@@ -33,6 +33,7 @@ function calcMonthlyPayment(principal: number, annualRate: number, years: number
 const mortgageMinMemories: SavingsStrategy = {
   id: 'mortgage-min-memories',
   name: 'mortgage min payment + memories',
+  nameKey: 'strategy.mortgageMinMemories',
   color: '#38bdf8', // sky
   calculate(params: SimulationParams): YearlyResult[] {
     const {

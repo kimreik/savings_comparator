@@ -10,6 +10,7 @@ import { registerStrategy } from './registry'
 const mortgageMaxInvest: SavingsStrategy = {
   id: 'mortgage-max-invest',
   name: 'mortgage max payment + invest',
+  nameKey: 'strategy.mortgageMaxInvest',
   color: '#0d9488', // teal
   calculate(params: SimulationParams): YearlyResult[] {
     const {

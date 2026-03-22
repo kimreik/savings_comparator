@@ -18,6 +18,7 @@ function calcMonthlyPayment(principal: number, annualRate: number, years: number
 const mortgageMinInvest: SavingsStrategy = {
   id: 'mortgage-min-invest',
   name: 'mortgage min payment + invest',
+  nameKey: 'strategy.mortgageMinInvest',
   color: '#f59e0b', // amber
   calculate(params: SimulationParams): YearlyResult[] {
     const {

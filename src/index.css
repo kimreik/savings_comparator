@@ -6,3 +6,18 @@ html, body, #root {
   overflow: hidden;
 }
 
+.recharts-wrapper,
+.recharts-wrapper *,
+.recharts-responsive-container,
+.recharts-responsive-container * {
+  outline: none !important;
+  -webkit-tap-highlight-color: transparent;
+}
+
+svg:focus,
+svg:focus-visible,
+div[tabindex]:focus,
+div[tabindex]:focus-visible {
+  outline: none !important;
+}
+

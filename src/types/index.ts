@@ -35,6 +35,8 @@ export interface YearlyResult {
 export interface SavingsStrategy {
   id: string
   name: string
+  /** i18n key for the strategy name */
+  nameKey?: string
   color: string
   /** Run the calculation and return net worth per year (year 0 = start) */
   calculate(params: SimulationParams): YearlyResult[]
