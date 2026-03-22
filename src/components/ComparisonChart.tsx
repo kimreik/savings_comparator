@@ -15,6 +15,7 @@ import type { TranslationKey } from '../i18n'
 
 interface ComparisonChartProps {
   results: StrategyResult[]
+  onSelectStrategy?: (result: StrategyResult) => void
 }
 
 function formatCurrency(value: number) {
@@ -102,7 +103,7 @@ function CustomTooltip({ active, payload }: any) {
   )
 }
 
-export default function ComparisonChart({ results }: ComparisonChartProps) {
+export default function ComparisonChart({ results, onSelectStrategy }: ComparisonChartProps) {
   const isMobile = useIsMobile(1024)
 
   if (results.length === 0) {
@@ -137,12 +138,20 @@ export default function ComparisonChart({ results }: ComparisonChartProps) {
     return {
       name,
       displayName,
+      strategyId: r.strategy.id,
       value: bankrupt ? 0 : r.finalNetWorth,
       bankrupt,
       neverBought,
       color: bankrupt ? '#e5e7eb' : r.strategy.color,
     }
   })
+
+  const handleBarClick = (data: any) => {
+    if (!onSelectStrategy) return
+    const strategyId = data?.strategyId
+    const matched = results.find((r) => r.strategy.id === strategyId)
+    if (matched) onSelectStrategy(matched)
+  }
 
   const labelFontSize = isMobile ? 12 : 16
   const axisFontSize = isMobile ? 10 : 13
@@ -171,9 +180,9 @@ export default function ComparisonChart({ results }: ComparisonChartProps) {
             />
             <YAxis type="category" dataKey="name" hide />
             <Tooltip content={<CustomTooltip />} cursor={false} />
-            <Bar dataKey="value" radius={[0, 4, 4, 0]} minPointSize={2}>
+            <Bar dataKey="value" radius={[0, 4, 4, 0]} minPointSize={2} style={{ cursor: onSelectStrategy ? 'pointer' : 'default' }}>
               {chartData.map((entry, index) => (
-                <Cell key={index} fill={entry.color} />
+                <Cell key={index} fill={entry.color} onClick={() => handleBarClick(entry)} />
               ))}
               <LabelList dataKey="name" content={(props: any) => <CustomBarLabel {...props} fontSize={labelFontSize} />} />
             </Bar>

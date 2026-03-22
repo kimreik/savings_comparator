@@ -50,11 +50,11 @@ const mortgageMaxPayment: SavingsStrategy = {
 
     for (let year = 0; year <= planningHorizon; year++) {
       if (bankrupt) {
-        results.push({ year, netWorth: -1 })
+        results.push({ year, netWorth: -1, cash: 0, realEstate: 0, stocks: 0, debt: 0 })
       } else if (!hasMortgage) {
-        results.push({ year, netWorth: Math.round(cash) })
+        results.push({ year, netWorth: Math.round(cash), cash: Math.round(cash), realEstate: 0, stocks: 0, debt: 0 })
       } else {
-        results.push({ year, netWorth: Math.round(realEstatePrice + cash - remainingDebt) })
+        results.push({ year, netWorth: Math.round(realEstatePrice + cash - remainingDebt), cash: Math.round(cash), realEstate: realEstatePrice, stocks: 0, debt: Math.round(remainingDebt) })
       }
 
       if (year === planningHorizon || bankrupt) continue

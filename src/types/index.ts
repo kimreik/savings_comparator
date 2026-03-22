@@ -30,6 +30,11 @@ export interface YearlyResult {
   netWorth: number
   /** Set on final year for mortgage strategies that never accumulated enough for a down payment */
   neverBought?: boolean
+  /** Asset breakdown for detail view */
+  cash?: number
+  realEstate?: number
+  stocks?: number
+  debt?: number
 }
 
 export interface SavingsStrategy {

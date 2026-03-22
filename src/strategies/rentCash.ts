@@ -24,7 +24,7 @@ const rentCash: SavingsStrategy = {
     let cash = currentSavings
 
     for (let year = 0; year <= planningHorizon; year++) {
-      results.push({ year, netWorth: Math.round(cash) })
+      results.push({ year, netWorth: Math.round(cash), cash: Math.round(cash), realEstate: 0, stocks: 0, debt: 0 })
 
       if (year === planningHorizon) continue
 

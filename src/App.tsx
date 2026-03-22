@@ -1,8 +1,9 @@
 import { useState } from 'react'
-import type { SimulationParams } from './types'
+import type { SimulationParams, StrategyResult } from './types'
 import { useSimulation } from './hooks/useSimulation'
 import InputPanel from './components/InputPanel'
 import ComparisonChart from './components/ComparisonChart'
+import DetailChart from './components/DetailChart'
 import { t } from './i18n'
 
 // Ensure all strategy modules are loaded (they self-register on import)
@@ -26,7 +27,21 @@ const DEFAULT_PARAMS: SimulationParams = {
 function App() {
   const [params, setParams] = useState<SimulationParams>(DEFAULT_PARAMS)
   const [mobileTab, setMobileTab] = useState<'chart' | 'settings'>('chart')
+  const [selectedStrategyId, setSelectedStrategyId] = useState<string | null>(null)
   const results = useSimulation(params)
+
+  // Look up the selected strategy from fresh results so it updates when params change
+  const selectedStrategy = selectedStrategyId
+    ? results.find((r) => r.strategy.id === selectedStrategyId) ?? null
+    : null
+
+  const handleSelectStrategy = (result: StrategyResult) => {
+    setSelectedStrategyId(result.strategy.id)
+  }
+
+  const handleBack = () => {
+    setSelectedStrategyId(null)
+  }
 
   return (
     <div className="h-screen flex flex-col bg-amber-100 overflow-hidden">
@@ -62,13 +77,21 @@ function App() {
         {/* ── Desktop: side-by-side ── */}
         <div className="hidden lg:grid lg:grid-cols-[auto_1fr] gap-6 flex-1 min-h-0">
           <InputPanel params={params} onParamsChange={setParams} />
-          <ComparisonChart results={results} />
+          {selectedStrategy ? (
+            <DetailChart result={selectedStrategy} onBack={handleBack} />
+          ) : (
+            <ComparisonChart results={results} onSelectStrategy={handleSelectStrategy} />
+          )}
         </div>
 
         {/* ── Mobile: tab content ── */}
         <div className="lg:hidden flex-1 min-h-0 flex flex-col">
           {mobileTab === 'chart' ? (
-            <ComparisonChart results={results} />
+            selectedStrategy ? (
+              <DetailChart result={selectedStrategy} onBack={handleBack} />
+            ) : (
+              <ComparisonChart results={results} onSelectStrategy={handleSelectStrategy} />
+            )
           ) : (
             <div className="flex-1 overflow-y-auto">
               <InputPanel params={params} onParamsChange={setParams} />

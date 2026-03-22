@@ -39,7 +39,7 @@ const rentInvest: SavingsStrategy = {
       const tax = incomeTax ? gain * 0.2 : 0
       const portfolioAfterTax = portfolio - tax
 
-      results.push({ year, netWorth: Math.round(portfolioAfterTax) })
+      results.push({ year, netWorth: Math.round(portfolioAfterTax), cash: 0, realEstate: 0, stocks: Math.round(portfolioAfterTax), debt: 0 })
 
       if (year === planningHorizon) continue
 

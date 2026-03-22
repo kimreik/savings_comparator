@@ -64,11 +64,11 @@ const mortgageMinInvest: SavingsStrategy = {
       const portfolioAfterTax = portfolio - tax
 
       if (bankrupt) {
-        results.push({ year, netWorth: -1 })
+        results.push({ year, netWorth: -1, cash: 0, realEstate: 0, stocks: 0, debt: 0 })
       } else if (!hasMortgage) {
-        results.push({ year, netWorth: Math.round(cash + portfolioAfterTax) })
+        results.push({ year, netWorth: Math.round(cash + portfolioAfterTax), cash: Math.round(cash), realEstate: 0, stocks: Math.round(portfolioAfterTax), debt: 0 })
       } else {
-        results.push({ year, netWorth: Math.round(realEstatePrice + cash + portfolioAfterTax - remainingDebt) })
+        results.push({ year, netWorth: Math.round(realEstatePrice + cash + portfolioAfterTax - remainingDebt), cash: Math.round(cash), realEstate: realEstatePrice, stocks: Math.round(portfolioAfterTax), debt: Math.round(remainingDebt) })
       }
 
       if (year === planningHorizon || bankrupt) continue
