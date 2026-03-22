@@ -44,7 +44,7 @@ function App() {
   }
 
   return (
-    <div className="h-screen flex flex-col bg-amber-100 overflow-hidden">
+    <div className="h-dvh flex flex-col bg-amber-100 overflow-hidden" style={{ height: '100dvh' }}>
       {/* ── Mobile tab bar ── */}
       <div className="lg:hidden flex border-b border-amber-300/40 shrink-0">
         <button
@@ -93,7 +93,7 @@ function App() {
               <ComparisonChart results={results} onSelectStrategy={handleSelectStrategy} />
             )
           ) : (
-            <div className="flex-1 overflow-y-auto">
+            <div className="flex-1 overflow-y-auto overscroll-contain pb-6">
               <InputPanel params={params} onParamsChange={setParams} />
             </div>
           )}

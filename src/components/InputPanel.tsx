@@ -53,8 +53,8 @@ export default function InputPanel({ params, onParamsChange }: InputPanelProps) 
     onParamsChange({ ...params, [key]: value })
 
   return (
-    <aside className="bg-white/30 backdrop-blur-sm rounded-xl shadow-sm border border-amber-300/30 p-2 w-full lg:w-72 flex flex-col min-h-0 lg:overflow-y-auto">
-      <div className="flex flex-col justify-between flex-1 gap-1.5">
+    <aside className="bg-white/30 backdrop-blur-sm rounded-xl shadow-sm border border-amber-300/30 p-2 w-full lg:w-72 flex flex-col lg:min-h-0 lg:overflow-y-auto">
+      <div className="flex flex-col lg:justify-between lg:flex-1 gap-1.5">
 
         {/* ── Savings ── */}
         <GroupCard title={t('group.savings')}>
