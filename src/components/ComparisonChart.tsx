@@ -46,30 +46,14 @@ function useIsMobile(breakpoint = 768) {
   return isMobile
 }
 
-/** Minimum bar width (px) to place the label inside */
-const MIN_WIDTH_FOR_INSIDE = 140
-
 function CustomBarLabel(props: any) {
   const { x, y, width, height, value, fontSize = 16, onRowClick, index } = props
-  const isBankrupt = value?.startsWith('💀')
+  const isBankrupt = value?.startsWith('\u{1F480}')
   const handleClick = () => onRowClick?.(index)
 
-  if (isBankrupt) {
-    return (
-      <text
-        x={(x ?? 0) + 6}
-        y={y + height / 2}
-        dy={4}
-        textAnchor="start"
-        style={{ fontSize, fontWeight: 600, fill: '#991b1b', cursor: onRowClick ? 'pointer' : 'default' }}
-        onClick={handleClick}
-      >
-        {value}
-      </text>
-    )
-  }
-
-  const inside = (width ?? 0) >= MIN_WIDTH_FOR_INSIDE
+  // Estimate text width: ~0.6em per character for this font weight
+  const textWidth = (value?.length ?? 0) * fontSize * 0.6 + 16
+  const inside = !isBankrupt && (width ?? 0) >= textWidth
 
   return (
     <text
@@ -80,7 +64,7 @@ function CustomBarLabel(props: any) {
       style={{
         fontSize,
         fontWeight: 600,
-        fill: inside ? '#fff' : '#374151',
+        fill: isBankrupt ? '#991b1b' : inside ? '#fff' : '#374151',
         textShadow: inside ? '0 1px 2px rgba(0,0,0,0.3)' : 'none',
         cursor: onRowClick ? 'pointer' : 'default',
       }}
