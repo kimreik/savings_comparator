@@ -50,8 +50,9 @@ function useIsMobile(breakpoint = 768) {
 const MIN_WIDTH_FOR_INSIDE = 140
 
 function CustomBarLabel(props: any) {
-  const { x, y, width, height, value, fontSize = 16 } = props
+  const { x, y, width, height, value, fontSize = 16, onRowClick, index } = props
   const isBankrupt = value?.startsWith('💀')
+  const handleClick = () => onRowClick?.(index)
 
   if (isBankrupt) {
     return (
@@ -60,7 +61,8 @@ function CustomBarLabel(props: any) {
         y={y + height / 2}
         dy={4}
         textAnchor="start"
-        style={{ fontSize, fontWeight: 600, fill: '#991b1b' }}
+        style={{ fontSize, fontWeight: 600, fill: '#991b1b', cursor: onRowClick ? 'pointer' : 'default' }}
+        onClick={handleClick}
       >
         {value}
       </text>
@@ -80,7 +82,9 @@ function CustomBarLabel(props: any) {
         fontWeight: 600,
         fill: inside ? '#fff' : '#374151',
         textShadow: inside ? '0 1px 2px rgba(0,0,0,0.3)' : 'none',
+        cursor: onRowClick ? 'pointer' : 'default',
       }}
+      onClick={handleClick}
     >
       {value}
     </text>
@@ -153,6 +157,14 @@ export default function ComparisonChart({ results, onSelectStrategy }: Compariso
     if (matched) onSelectStrategy(matched)
   }
 
+  const handleRowClick = (index: number) => {
+    if (!onSelectStrategy) return
+    const entry = chartData[index]
+    if (!entry) return
+    const matched = results.find((r) => r.strategy.id === entry.strategyId)
+    if (matched) onSelectStrategy(matched)
+  }
+
   const labelFontSize = isMobile ? 12 : 16
   const axisFontSize = isMobile ? 10 : 13
   const xFormatter = isMobile ? formatCurrencyCompact : formatCurrency
@@ -169,7 +181,11 @@ export default function ComparisonChart({ results, onSelectStrategy }: Compariso
               : { top: 5, right: 20, bottom: 20, left: 5 }
             }
             barCategoryGap="8%"
-            style={{ outline: 'none' }}
+            style={{ outline: 'none', cursor: onSelectStrategy ? 'pointer' : 'default' }}
+            onClick={(state: any) => {
+              if (!onSelectStrategy || !state?.activeTooltipIndex) return
+              handleRowClick(state.activeTooltipIndex)
+            }}
           >
             <XAxis
               type="number"
@@ -184,7 +200,7 @@ export default function ComparisonChart({ results, onSelectStrategy }: Compariso
               {chartData.map((entry, index) => (
                 <Cell key={index} fill={entry.color} onClick={() => handleBarClick(entry)} />
               ))}
-              <LabelList dataKey="name" content={(props: any) => <CustomBarLabel {...props} fontSize={labelFontSize} />} />
+              <LabelList dataKey="name" content={(props: any) => <CustomBarLabel {...props} fontSize={labelFontSize} onRowClick={onSelectStrategy ? handleRowClick : undefined} />} />
             </Bar>
           </BarChart>
         </ResponsiveContainer>

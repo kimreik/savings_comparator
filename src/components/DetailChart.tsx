@@ -7,7 +7,7 @@ import {
   ResponsiveContainer,
   Legend,
 } from 'recharts'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef, useCallback } from 'react'
 import type { StrategyResult } from '../types'
 import { t } from '../i18n'
 import type { TranslationKey } from '../i18n'
@@ -27,6 +27,39 @@ function useIsMobile(breakpoint = 1024) {
     return () => window.removeEventListener('resize', onResize)
   }, [breakpoint])
   return isMobile
+}
+
+/** Detect a right-swipe gesture and call onSwipeRight */
+function useSwipeBack(ref: React.RefObject<HTMLElement | null>, onSwipeRight: () => void) {
+  const touchStart = useRef<{ x: number; y: number } | null>(null)
+
+  const onTouchStart = useCallback((e: TouchEvent) => {
+    const touch = e.touches[0]
+    touchStart.current = { x: touch.clientX, y: touch.clientY }
+  }, [])
+
+  const onTouchEnd = useCallback((e: TouchEvent) => {
+    if (!touchStart.current) return
+    const touch = e.changedTouches[0]
+    const dx = touch.clientX - touchStart.current.x
+    const dy = Math.abs(touch.clientY - touchStart.current.y)
+    touchStart.current = null
+    // Swipe right: dx > 80px, mostly horizontal (dx > 2*dy)
+    if (dx > 80 && dx > dy * 2) {
+      onSwipeRight()
+    }
+  }, [onSwipeRight])
+
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    el.addEventListener('touchstart', onTouchStart, { passive: true })
+    el.addEventListener('touchend', onTouchEnd, { passive: true })
+    return () => {
+      el.removeEventListener('touchstart', onTouchStart)
+      el.removeEventListener('touchend', onTouchEnd)
+    }
+  }, [ref, onTouchStart, onTouchEnd])
 }
 
 function formatCurrency(value: number) {
@@ -70,6 +103,9 @@ function CustomTooltip({ active, payload, label }: any) {
 
 export default function DetailChart({ result, onBack }: DetailChartProps) {
   const isMobile = useIsMobile()
+  const sectionRef = useRef<HTMLElement>(null)
+  useSwipeBack(sectionRef, onBack)
+
   const displayName = result.strategy.nameKey
     ? t(result.strategy.nameKey as TranslationKey)
     : result.strategy.name
@@ -108,18 +144,20 @@ export default function DetailChart({ result, onBack }: DetailChartProps) {
   const xFormatter = isMobile ? formatCurrencyCompact : formatCurrency
 
   return (
-    <section className="bg-white/60 backdrop-blur-sm rounded-xl shadow-sm border border-amber-300/30 p-3 lg:p-6 flex-1 min-h-0 flex flex-col outline-none">
+    <section ref={sectionRef} className="bg-white/60 backdrop-blur-sm rounded-xl shadow-sm border border-amber-300/30 p-3 lg:p-6 flex-1 min-h-0 flex flex-col outline-none">
       {/* Header with back button and strategy name */}
-      <div className="flex items-center gap-2 mb-2 lg:mb-4 shrink-0">
+      <div className="flex items-center gap-1.5 mb-2 lg:mb-4 shrink-0">
         <button
           onClick={onBack}
-          className="text-3xl lg:text-4xl font-bold text-gray-600 hover:text-gray-900 transition-colors px-1 py-0.5 -ml-1 rounded-lg hover:bg-amber-100 leading-none"
+          className="flex items-center justify-center w-8 h-8 lg:w-9 lg:h-9 text-amber-500 hover:text-amber-700 transition-colors shrink-0"
           aria-label="Back"
         >
-          ‹
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-7 h-7 lg:w-8 lg:h-8">
+            <polyline points="15 18 9 12 15 6" />
+          </svg>
         </button>
         <h2 className="text-lg lg:text-2xl font-bold text-gray-800 truncate">
-          {bankrupt ? `💀 ${displayName}` : displayName}
+          {bankrupt ? `\u{1F480} ${displayName}` : displayName}
         </h2>
       </div>
 
